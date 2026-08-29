@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>音声入力点検アプリ 使用申請</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Helvetica Neue',Arial,'Hiragino Sans','Hiragino Kaku Gothic ProN','Meiryo',sans-serif;background:#f0f4f8;color:#333;}
+
+.slide{
+  width:210mm;
+  min-height:148mm;
+  background:#fff;
+  margin:20px auto;
+  padding:20px 28px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.12);
+  page-break-after:always;
+  position:relative;
+  overflow:hidden;
+}
+
+/* 印刷時 */
+@media print{
+  body{background:#fff;}
+  .slide{margin:0;box-shadow:none;page-break-after:always;width:100%;min-height:190mm;}
+  .no-print{display:none;}
+}
+
+/* ヘッダーバー */
+.slide-header{
+  background:linear-gradient(135deg,#1a73e8,#0d47a1);
+  color:#fff;
+  padding:14px 20px;
+  border-radius:10px;
+  margin-bottom:18px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.slide-header .icon{font-size:28px;}
+.slide-header .titles{}
+.slide-header .slide-num{font-size:11px;opacity:0.8;margin-bottom:2px;}
+.slide-header h2{font-size:20px;font-weight:bold;letter-spacing:0.5px;}
+
+/* フッター */
+.slide-footer{
+  position:absolute;
+  bottom:12px;
+  right:20px;
+  font-size:10px;
+  color:#aaa;
+}
+
+/* カード */
+.card{
+  background:#f8faff;
+  border-left:4px solid #1a73e8;
+  border-radius:0 8px 8px 0;
+  padding:12px 16px;
+  margin-bottom:12px;
+}
+.card.green{border-color:#2e7d32;background:#f1f8f1;}
+.card.red{border-color:#c62828;background:#fff5f5;}
+.card.orange{border-color:#e65100;background:#fff8f0;}
+.card.purple{border-color:#6a1b9a;background:#f8f0ff;}
+
+.card h3{font-size:13px;color:#1a73e8;margin-bottom:6px;font-weight:bold;}
+.card.green h3{color:#2e7d32;}
+.card.red h3{color:#c62828;}
+.card.orange h3{color:#e65100;}
+.card.purple h3{color:#6a1b9a;}
+.card p{font-size:12px;line-height:1.7;color:#444;}
+
+/* テーブル */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+.tbl th{background:#1a73e8;color:#fff;padding:8px 10px;text-align:left;font-weight:bold;}
+.tbl td{padding:8px 10px;border-bottom:1px solid #e0e0e0;vertical-align:top;}
+.tbl tr:nth-child(even) td{background:#f5f8ff;}
+.tbl .ok{color:#2e7d32;font-weight:bold;}
+.tbl .warn{color:#e65100;font-weight:bold;}
+.tbl .tag{display:inline-block;background:#e8f0fe;color:#1a73e8;border-radius:4px;padding:1px 6px;font-size:11px;}
+.tbl .tag.g{background:#e8f5e9;color:#2e7d32;}
+.tbl .tag.r{background:#fce4ec;color:#c62828;}
+
+/* フロー */
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.flow-box{background:#1a73e8;color:#fff;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:bold;text-align:center;flex:1;min-width:80px;}
+.flow-box.g{background:#2e7d32;}
+.flow-box.o{background:#e65100;}
+.flow-arrow{color:#1a73e8;font-size:20px;font-weight:bold;}
+
+/* バッジ */
+.badge-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+.badge{border-radius:10px;padding:10px 16px;text-align:center;flex:1;min-width:80px;}
+.badge .bi{font-size:24px;}
+.badge .bt2{font-size:11px;margin-top:4px;font-weight:bold;}
+.badge.b1{background:#e8f0fe;color:#1a73e8;}
+.badge.b2{background:#e8f5e9;color:#2e7d32;}
+.badge.b3{background:#fff8e1;color:#f57f17;}
+.badge.b4{background:#fce4ec;color:#c62828;}
+
+/* タイトルスライド */
+.title-slide{
+  background:linear-gradient(135deg,#0d47a1 0%,#1a73e8 50%,#42a5f5 100%);
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  min-height:160mm;
+  border-radius:0;
+}
+.title-slide h1{font-size:26px;font-weight:bold;margin-bottom:12px;line-height:1.4;}
+.title-slide .sub{font-size:14px;opacity:0.9;margin-bottom:20px;}
+.title-slide .date{font-size:12px;opacity:0.7;margin-top:16px;}
+.title-slide .icon-big{font-size:56px;margin-bottom:16px;}
+.title-slide .tags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.title-slide .tag2{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.5);border-radius:20px;padding:6px 16px;font-size:12px;}
+
+/* ポイント強調 */
+.point-box{
+  background:linear-gradient(135deg,#1a73e8,#0d47a1);
+  color:#fff;
+  border-radius:10px;
+  padding:14px 18px;
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.point-box .pb-icon{font-size:30px;}
+.point-box .pb-text{}
+.point-box .pb-title{font-size:13px;opacity:0.85;margin-bottom:2px;}
+.point-box .pb-val{font-size:18px;font-weight:bold;}
+
+.two-col{display:flex;gap:12px;}
+.two-col .col{flex:1;}
+
+.print-btn{
+  display:block;
+  margin:20px auto;
+  padding:14px 40px;
+  background:#1a73e8;
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+  cursor:pointer;
+  font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">🖨️ 印刷する</button>
+
+<!-- スライド1：タイトル -->
+<div class="slide">
+  <div class="title-slide">
+    <div class="icon-big">📋</div>
+    <h1>音声入力チェックシートアプリ<br>使用申請</h1>
+    <div class="sub">発電機点検作業の効率化・記録精度向上を目的として</div>
+    <div class="tags">
+      <span class="tag2">🎤 音声入力</span>
+      <span class="tag2">📱 iPhone対応</span>
+      <span class="tag2">🔒 セキュリティ確認済</span>
+      <span class="tag2">📄 CSV出力</span>
+    </div>
+    <div class="date">申請日：2026年　　月　　日</div>
+  </div>
+</div>
+
+<!-- スライド2：課題と解決策 -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="icon">⚠️</div>
+    <div class="titles">
+      <div class="slide-num">SLIDE 1</div>
+      <h2>現状の課題と解決策</h2>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="col">
+      <div class="card red">
+        <h3>❌ 現状の問題</h3>
+        <p>
+          ウェッジ点検作業では<strong>工具を両手で使用</strong>するため、測定しながら紙のチェックシートへ記入することが困難。<br><br>
+          ・記録のために作業を中断<br>
+          ・記入ミス・読み間違いのリスク<br>
+          ・作業効率の低下
+        </p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card green">
+        <h3>✅ 解決策</h3>
+        <p>
+          iPhone + AirPods を使用した<strong>音声入力チェックシートアプリ</strong>を導入。<br><br>
+          ・両手が塞がったまま記録可能<br>
+          ・音声で復唱して確認<br>
+          ・測定後すぐにCSV出力
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📱 使用機器</h3>
+    <p>iPhone（業務用端末）+ AirPods または有線イヤホン（マイク付き）</p>
+  </div>
+
+  <div class="slide-footer">音声入力チェックシートアプリ 使用申請</div>
+</div>
+
+<!-- スライド3：アプリの機能 -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="icon">📱</div>
+    <div class="titles">
+      <div class="slide-num">SLIDE 2</div>
+      <h2>アプリの主な機能</h2>
+    </div>
+  </div>
+
+  <div class="badge-row">
+    <div class="badge b1">
+      <div class="bi">🎤</div>
+      <div class="bt2">音声入力</div>
+    </div>
+    <div class="badge b2">
+      <div class="bi">🔊</div>
+      <div class="bt2">音声復唱</div>
+    </div>
+    <div class="badge b3">
+      <div class="bi">📊</div>
+      <div class="bt2">グリッド表示</div>
+    </div>
+    <div class="badge b4">
+      <div class="bi">💾</div>
+      <div class="bt2">セーブ・ロード</div>
+    </div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <div class="flow">
+      <div class="flow-box">「ナンバー1<br>52」と発話</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box g">自動で記録</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box o">「ナンバー1<br>52を記録」<br>と復唱</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">画面で<br>確認</div>
+    </div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <table class="tbl">
+      <tr><th>機能</th><th>内容</th></tr>
+      <tr><td>音声入力</td><td>「ナンバー〇〇、数値」で自動記録</td></tr>
+      <tr><td>音声復唱</td><td>記録後に音声で確認読み上げ</td></tr>
+      <tr><td>訂正</td><td>「訂正、ナンバー〇〇、数値」で上書き</td></tr>
+      <tr><td>確認画面</td><td>全データ一覧・タップで手動修正</td></tr>
+      <tr><td>CSV出力</td><td>Excelで開けるファイルとして保存</td></tr>
+      <tr><td>セーブ・ロード</td><td>途中保存・続きから再開可能</td></tr>
+    </table>
+  </div>
+
+  <div class="slide-footer">音声入力チェックシートアプリ 使用申請</div>
+</div>
+
+<!-- スライド4：セキュリティ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="icon">🔒</div>
+    <div class="titles">
+      <div class="slide-num">SLIDE 3</div>
+      <h2>セキュリティ・データ管理</h2>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <tr>
+      <th>データの種類</th>
+      <th>外部送信</th>
+      <th>保存場所</th>
+      <th>リスク</th>
+    </tr>
+    <tr>
+      <td><strong>測定数値</strong></td>
+      <td><span class="tag g">なし</span></td>
+      <td>端末内のみ</td>
+      <td class="ok">✅ 安全</td>
+    </tr>
+    <tr>
+      <td><strong>設定・機種情報</strong></td>
+      <td><span class="tag g">なし</span></td>
+      <td>端末内のみ</td>
+      <td class="ok">✅ 安全</td>
+    </tr>
+    <tr>
+      <td><strong>セーブデータ</strong></td>
+      <td><span class="tag g">なし</span></td>
+      <td>端末内のみ</td>
+      <td class="ok">✅ 安全</td>
+    </tr>
+    <tr>
+      <td><strong>音声認識時の発話</strong><br><small>（数値・簡単な言葉のみ）</small></td>
+      <td><span class="tag r">Apple社</span></td>
+      <td>処理後破棄</td>
+      <td class="warn">⚠️ 低リスク</td>
+    </tr>
+  </table>
+
+  <div style="margin-top:12px;">
+    <div class="card orange">
+      <h3>⚠️ 音声認識について</h3>
+      <p>
+        発話するのは<strong>「ナンバー1、52」などの数値のみ</strong>。<br>
+        現場名・機種名・会社名は一切発話しないため、<strong>第三者が聞いても何の数値か判別不可能</strong>。<br>
+        Apple社のプライバシーポリシーに基づき、音声データは第三者へ提供されない。
+      </p>
+    </div>
+    <div class="card green">
+      <h3>✅ 万が一の対応</h3>
+      <p>音声入力を使用せず<strong>手動入力のみ</strong>での運用に切り替え可能。その場合、データの外部送信は<strong>完全にゼロ</strong>。</p>
+    </div>
+  </div>
+
+  <div class="slide-footer">音声入力チェックシートアプリ 使用申請</div>
+</div>
+
+<!-- スライド5：まとめ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="icon">✅</div>
+    <div class="titles">
+      <div class="slide-num">SLIDE 4</div>
+      <h2>まとめ・お願い</h2>
+    </div>
+  </div>
+
+  <div class="point-box">
+    <div class="pb-icon">🎯</div>
+    <div class="pb-text">
+      <div class="pb-title">導入効果</div>
+      <div class="pb-val">作業効率向上・記録ミス削減・両手作業のまま記録可能</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="col">
+      <div class="card green">
+        <h3>✅ 安全面</h3>
+        <p>
+          ・測定データは端末内のみ<br>
+          ・外部送信は数値のみ<br>
+          ・判別不可能な情報のみ<br>
+          ・手動入力への切替可能
+        </p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>📋 運用面</h3>
+        <p>
+          ・特別な機器不要<br>
+          ・iPhone + イヤホンのみ<br>
+          ・CSV出力で記録保存<br>
+          ・途中保存・再開可能
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card purple">
+    <h3>🙏 お願い</h3>
+    <p>
+      上記内容をご確認いただき、<strong>発電機ウェッジ点検作業における本アプリの試験的使用</strong>についてご承認いただけますようお願い申し上げます。<br><br>
+      ご不明な点がございましたら、お気軽にご相談ください。
+    </p>
+  </div>
+
+  <div class="slide-footer">音声入力チェックシートアプリ 使用申請</div>
+</div>
+
+<button class="print-btn no-print" onclick="window.print()">🖨️ 印刷する</button>
+
+</body>
+</html>
