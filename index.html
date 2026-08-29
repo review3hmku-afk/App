@@ -48,6 +48,7 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 .bt.g{background:#00838f;color:#fff;width:100%;margin-top:8px;}
 .bt.w{background:#e65100;color:#fff;width:100%;margin-top:8px;}
 .bt.r{background:#c62828;color:#fff;width:100%;margin-top:8px;}
+.bt.pu{background:#7b1fa2;color:#fff;width:100%;margin-top:8px;}
 .vh{background:#1a1a3e;border:1px solid #444;border-radius:8px;padding:10px;margin-bottom:10px;font-size:11px;color:#aaa;line-height:1.5;}
 .vh b{color:#0ff;}
 .dtw{overflow-x:auto;margin-bottom:12px;}
@@ -154,9 +155,7 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 <div id="ptSet"></div>
 </div>
 <button class="bt p" type="button" onclick="doApply()">✅ 設定を適用して新規開始</button>
-
 <hr class="divider">
-
 <div class="sg">
 <h3>🗑 データリセット</h3>
 <p style="font-size:12px;color:#888;margin-bottom:12px;">測定点ごとにリセット：</p>
@@ -164,7 +163,6 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 <hr class="divider">
 <button class="bt r" type="button" onclick="resetAll()">⚠️ 全データを一括リセット</button>
 </div>
-
 <div class="sg" style="margin-top:14px;">
 <h3>💾 プリセット</h3>
 <button class="bt s" style="width:100%;" type="button" onclick="doSavePreset()">現在の設定を保存</button>
@@ -254,13 +252,12 @@ document.getElementById('prTxt').textContent='測定済み: '+f+' / '+C.ts;
 document.getElementById('prFill').style.width=pct+'%';
 }
 
-// ========== リセット ==========
 function buildResetButtons(){
 var c=document.getElementById('resetButtons');
 if(!c)return;
 var h='';
 for(var i=0;i<C.np;i++){
-h+='<button class="bt" style="background:#7b1fa2;color:#fff;width:100%;margin-top:8px;" type="button" onclick="resetPoint('+i+')">🗑 '+（i+1)+'点目（'+C.pp[i]+'枚目）をリセット</button>';
+h+='<button class="bt pu" type="button" onclick="resetPoint('+i+')">🗑 '+(i+1)+'点目（'+C.pp[i]+'枚目）をリセット</button>';
 }
 c.innerHTML=h;
 }
@@ -284,7 +281,6 @@ showSt('🗑 全データをリセットしました');
 spk('全データをリセットしました');
 }
 
-// ========== ファイル操作 ==========
 function doExportCSV(){
 var ls=['機種,'+C.mc,'日付,'+new Date().toLocaleString('ja-JP'),''];
 var hd='No.';
@@ -336,7 +332,7 @@ if(!sd.config||!sd.data){
 alert('ファイルの形式が正しくありません');
 return;
 }
-if(!confirm('保存データを読み込みます。\n現在のデータは上書きされます。\nよろしいですか？')){return;}
+if(!confirm('保存データを読み込みます。現在のデータは上書きされます。よろしいですか？')){return;}
 C=sd.config;
 D={};
 for(var p=0;p<C.np;p++){
@@ -359,7 +355,6 @@ reader.readAsText(file);
 e.target.value='';
 }
 
-// ========== 音声認識 ==========
 document.getElementById('vbtn').addEventListener('click',function(e){
 e.preventDefault();
 log('ボタンタップ');
@@ -457,7 +452,6 @@ if(listening){setTimeout(function(){if(listening)doStart();},1000);}
 }
 }
 
-// ========== 音声処理 ==========
 function k2n(s){
 var m={'零':0,'〇':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'１':'1','２':'2','３':'3','４':'4','５':'5','６':'6','７':'7','８':'8','９':'9','０':'0'};
 var r=s;for(var k in m)r=r.split(k).join(String(m[k]));return r;
