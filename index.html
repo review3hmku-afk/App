@@ -46,7 +46,6 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 .bt.n{background:#0a6640;color:#fff;flex:1;}
 .bt.x{background:#1565c0;color:#fff;width:100%;margin-top:8px;}
 .bt.g{background:#00838f;color:#fff;width:100%;margin-top:8px;}
-.bt.w{background:#e65100;color:#fff;width:100%;margin-top:8px;}
 .bt.r{background:#c62828;color:#fff;width:100%;margin-top:8px;}
 .bt.pu{background:#7b1fa2;color:#fff;width:100%;margin-top:8px;}
 .vh{background:#1a1a3e;border:1px solid #444;border-radius:8px;padding:10px;margin-bottom:10px;font-size:11px;color:#aaa;line-height:1.5;}
@@ -82,7 +81,21 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 .pi2 .bd{background:#c62828;color:#fff;}
 .dbg{background:#0d0d1a;border:1px solid #333;border-radius:8px;padding:8px;margin-bottom:10px;font-size:10px;color:#666;max-height:80px;overflow-y:auto;word-break:break-all;}
 .divider{border:none;border-top:1px solid #333;margin:12px 0;}
-.file-input{display:none;}
+
+/* セーブスロット */
+.slot-card{background:#16213e;border:2px solid #333;border-radius:12px;padding:14px;margin-bottom:10px;position:relative;}
+.slot-card.used{border-color:#0a6640;}
+.slot-card.empty{border-color:#333;opacity:0.7;}
+.slot-title{font-size:13px;color:#e94560;font-weight:bold;margin-bottom:6px;}
+.slot-info{font-size:12px;color:#aaa;line-height:1.6;}
+.slot-info .mc{color:#0ff;font-weight:bold;font-size:14px;}
+.slot-info .prog{color:#00e676;}
+.slot-info .dt2{color:#888;font-size:11px;}
+.slot-btns{display:flex;gap:8px;margin-top:10px;}
+.slot-btns .bt{flex:1;padding:10px;font-size:13px;margin-top:0;}
+.bt.load{background:#0a3d62;color:#0ff;border:1px solid #0ff;}
+.bt.save2{background:#0a6640;color:#fff;}
+.bt.del2{background:#c62828;color:#fff;}
 </style>
 </head>
 <body>
@@ -96,7 +109,8 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 <div class="tabs">
 <div class="tb on" id="tab0" onclick="switchTab(0)">📏 測定</div>
 <div class="tb" id="tab1" onclick="switchTab(1)">📋 確認</div>
-<div class="tb" id="tab2" onclick="switchTab(2)">⚙️ 設定</div>
+<div class="tb" id="tab2" onclick="switchTab(2)">💾 保存</div>
+<div class="tb" id="tab3" onclick="switchTab(3)">⚙️ 設定</div>
 </div>
 
 <div class="sc on" id="sc0">
@@ -136,14 +150,16 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 <p style="font-size:11px;color:#888;margin-bottom:10px;">セルをタップで修正</p>
 <div class="dtw"><table class="dt" id="dtbl"></table></div>
 <hr class="divider">
-<h3 style="color:#e94560;margin-bottom:8px;">📁 ファイル操作</h3>
 <button class="bt x" type="button" onclick="doExportCSV()">📄 CSV形式で保存</button>
-<button class="bt g" type="button" onclick="doExportJSON()">💾 JSONで保存（続きから再開用）</button>
-<button class="bt w" type="button" onclick="doImportJSON()">📂 JSONを読み込む</button>
-<input type="file" id="fileInput" class="file-input" accept=".json" onchange="handleFileLoad(event)">
 </div>
 
 <div class="sc" id="sc2">
+<h3 style="color:#e94560;margin-bottom:4px;">💾 セーブ・ロード</h3>
+<p style="font-size:11px;color:#888;margin-bottom:12px;">スロットをタップしてロード、または上書き保存</p>
+<div id="slotList"></div>
+</div>
+
+<div class="sc" id="sc3">
 <div class="sg">
 <h3>📐 基本設定</h3>
 <div class="sr"><label>機種名</label><input type="text" id="inMc" value="デフォルト" class="w"></div>
@@ -164,7 +180,7 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 <button class="bt r" type="button" onclick="resetAll()">⚠️ 全データを一括リセット</button>
 </div>
 <div class="sg" style="margin-top:14px;">
-<h3>💾 プリセット</h3>
+<h3>💾 プリセット（設定のみ保存）</h3>
 <button class="bt s" style="width:100%;" type="button" onclick="doSavePreset()">現在の設定を保存</button>
 <div id="prList" style="margin-top:10px;"></div>
 </div>
@@ -188,6 +204,7 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 var C={mc:'デフォルト',ts:72,np:3,pp:[5,13,19]};
 var cp=0,es=1,D={},listening=false,rec=null,mSlot=null,mPt=null,stT=null;
 var logEl;
+var NUM_SLOTS=5;
 
 function log(s){
 if(!logEl)logEl=document.getElementById('dbg');
@@ -232,6 +249,16 @@ if(D[cp][i]!==undefined&&D[cp][i]!==null)c++;
 return c;
 }
 
+function cntFAll(){
+var c=0;
+for(var p=0;p<C.np;p++){
+for(var i=1;i<=C.ts;i++){
+if(D[p][i]!==undefined&&D[p][i]!==null)c++;
+}
+}
+return c;
+}
+
 function updGrid(){
 var g=document.getElementById('grid');
 g.innerHTML='';
@@ -252,6 +279,114 @@ document.getElementById('prTxt').textContent='測定済み: '+f+' / '+C.ts;
 document.getElementById('prFill').style.width=pct+'%';
 }
 
+// ========== セーブ・ロード ==========
+function getSaves(){
+var s=localStorage.getItem('saves');
+if(!s){
+var arr=[];
+for(var i=0;i<NUM_SLOTS;i++)arr.push(null);
+return arr;
+}
+return JSON.parse(s);
+}
+
+function putSaves(arr){
+localStorage.setItem('saves',JSON.stringify(arr));
+}
+
+function saveToSlot(idx){
+var saves=getSaves();
+var existing=saves[idx];
+var msg=existing?
+'スロット'+(idx+1)+'に上書き保存しますか？\n（'+existing.mc+' '+existing.savedAt+'）':
+'スロット'+(idx+1)+'に保存しますか？';
+if(!confirm(msg))return;
+
+var totalF=cntFAll();
+var totalAll=C.ts*C.np;
+saves[idx]={
+mc:C.mc,
+savedAt:new Date().toLocaleString('ja-JP'),
+progress:totalF+'/'+totalAll,
+config:JSON.parse(JSON.stringify(C)),
+currentPoint:cp,
+data:JSON.parse(JSON.stringify(D))
+};
+putSaves(saves);
+renderSlots();
+showSt('💾 スロット'+(idx+1)+'に保存しました');
+spk('スロット'+(idx+1)+'に保存しました');
+}
+
+function loadFromSlot(idx){
+var saves=getSaves();
+var sv=saves[idx];
+if(!sv){showSt('このスロットは空です');return;}
+if(!confirm('スロット'+(idx+1)+'のデータをロードしますか？\n（'+sv.mc+' '+sv.savedAt+'）\n現在のデータは上書きされます。'))return;
+
+C=JSON.parse(JSON.stringify(sv.config));
+D={};
+for(var p=0;p<C.np;p++){
+D[p]=sv.data[p]?JSON.parse(JSON.stringify(sv.data[p])):{};
+}
+cp=sv.currentPoint||0;
+if(cp>=C.np)cp=0;
+
+document.getElementById('inMc').value=C.mc;
+document.getElementById('inSl').value=C.ts;
+document.getElementById('inPt').value=C.np;
+
+svData();updAll();buildPtUI();renderSlots();
+switchTab(0);
+showSt('📂 スロット'+(idx+1)+'をロードしました：'+C.mc);
+spk('ロードしました。'+C.mc);
+}
+
+function deleteSlot(idx){
+var saves=getSaves();
+if(!saves[idx]){return;}
+if(!confirm('スロット'+(idx+1)+'のデータを削除しますか？'))return;
+saves[idx]=null;
+putSaves(saves);
+renderSlots();
+showSt('🗑 スロット'+(idx+1)+'を削除しました');
+}
+
+function renderSlots(){
+var saves=getSaves();
+var c=document.getElementById('slotList');
+var h='';
+for(var i=0;i<NUM_SLOTS;i++){
+var sv=saves[i];
+if(sv){
+var pct=sv.progress;
+h+='<div class="slot-card used">';
+h+='<div class="slot-title">💾 スロット'+(i+1)+'</div>';
+h+='<div class="slot-info">';
+h+='<div class="mc">'+sv.mc+'</div>';
+h+='<div class="prog">進捗: '+pct+'</div>';
+h+='<div class="dt2">保存日時: '+sv.savedAt+'</div>';
+h+='</div>';
+h+='<div class="slot-btns">';
+h+='<button class="bt load" onclick="loadFromSlot('+i+')">📂 ロード</button>';
+h+='<button class="bt save2" onclick="saveToSlot('+i+')">💾 上書き</button>';
+h+='<button class="bt del2" onclick="deleteSlot('+i+')">🗑</button>';
+h+='</div>';
+h+='</div>';
+}else{
+h+='<div class="slot-card empty">';
+h+='<div class="slot-title">📭 スロット'+(i+1)+'（空き）</div>';
+h+='<div class="slot-info" style="color:#555;font-size:12px;">データなし</div>';
+h+='<div class="slot-btns">';
+h+='<button class="bt save2" style="flex:1;" onclick="saveToSlot('+i+')">💾 ここに保存</button>';
+h+='</div>';
+h+='</div>';
+}
+}
+c.innerHTML=h;
+}
+
+// ========== リセット ==========
 function buildResetButtons(){
 var c=document.getElementById('resetButtons');
 if(!c)return;
@@ -281,6 +416,7 @@ showSt('🗑 全データをリセットしました');
 spk('全データをリセットしました');
 }
 
+// ========== CSV出力 ==========
 function doExportCSV(){
 var ls=['機種,'+C.mc,'日付,'+new Date().toLocaleString('ja-JP'),''];
 var hd='No.';
@@ -300,61 +436,7 @@ URL.revokeObjectURL(url);
 showSt('📄 CSVを保存しました');
 }
 
-function doExportJSON(){
-var saveData={
-version:1,
-savedAt:new Date().toISOString(),
-config:C,
-currentPoint:cp,
-data:D
-};
-var blob=new Blob([JSON.stringify(saveData,null,2)],{type:'application/json'});
-var url=URL.createObjectURL(blob);
-var a=document.createElement('a');a.href=url;
-a.download='check_'+C.mc+'_'+new Date().toISOString().slice(0,10)+'.json';
-document.body.appendChild(a);a.click();document.body.removeChild(a);
-URL.revokeObjectURL(url);
-showSt('💾 JSONを保存しました');
-}
-
-function doImportJSON(){
-document.getElementById('fileInput').click();
-}
-
-function handleFileLoad(e){
-var file=e.target.files[0];
-if(!file)return;
-var reader=new FileReader();
-reader.onload=function(ev){
-try{
-var sd=JSON.parse(ev.target.result);
-if(!sd.config||!sd.data){
-alert('ファイルの形式が正しくありません');
-return;
-}
-if(!confirm('保存データを読み込みます。現在のデータは上書きされます。よろしいですか？')){return;}
-C=sd.config;
-D={};
-for(var p=0;p<C.np;p++){
-D[p]=sd.data[p]||{};
-}
-cp=sd.currentPoint||0;
-if(cp>=C.np)cp=0;
-document.getElementById('inMc').value=C.mc;
-document.getElementById('inSl').value=C.ts;
-document.getElementById('inPt').value=C.np;
-svData();updAll();buildPtUI();
-if(document.getElementById('sc1').classList.contains('on'))renderTbl();
-showSt('📂 データを読み込みました：'+C.mc);
-spk('データを読み込みました');
-}catch(ex){
-alert('読み込みに失敗しました：'+ex.message);
-}
-};
-reader.readAsText(file);
-e.target.value='';
-}
-
+// ========== 音声認識 ==========
 document.getElementById('vbtn').addEventListener('click',function(e){
 e.preventDefault();
 log('ボタンタップ');
@@ -369,11 +451,7 @@ showSt('音声認識を停止しました');
 return;
 }
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(!SR){
-alert('このブラウザは音声認識に対応していません');
-log('SR未対応');
-return;
-}
+if(!SR){alert('このブラウザは音声認識に対応していません');log('SR未対応');return;}
 listening=true;
 this.className='vbtn rec';
 this.textContent='🔴 認識中... タップで停止';
@@ -452,6 +530,7 @@ if(listening){setTimeout(function(){if(listening)doStart();},1000);}
 }
 }
 
+// ========== 音声処理 ==========
 function k2n(s){
 var m={'零':0,'〇':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'１':'1','２':'2','３':'3','４':'4','５':'5','６':'6','７':'7','８':'8','９':'9','０':'0'};
 var r=s;for(var k in m)r=r.split(k).join(String(m[k]));return r;
@@ -575,13 +654,14 @@ mdClose();
 }
 
 function switchTab(n){
-for(var i=0;i<3;i++){
+for(var i=0;i<4;i++){
 document.getElementById('sc'+i).classList.remove('on');
 document.getElementById('tab'+i).classList.remove('on');
 }
 document.getElementById('sc'+n).classList.add('on');
 document.getElementById('tab'+n).classList.add('on');
 if(n===1)renderTbl();
+if(n===2)renderSlots();
 }
 
 function renderTbl(){
