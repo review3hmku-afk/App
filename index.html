@@ -49,7 +49,7 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 .vh b{color:#0ff;}
 .dtw{overflow-x:auto;margin-bottom:12px;}
 .dt{width:100%;border-collapse:collapse;font-size:12px;}
-.dt th{background:#e94560;color:#fff;padding:8px 4px;position:sticky;top:108px;z-index:10;}
+.dt th{background:#e94560;color:#fff;padding:8px 4px;position:sticky;top:0;z-index:10;}
 .dt td{background:#16213e;padding:8px 4px;text-align:center;border:1px solid #333;cursor:pointer;}
 .dt td.hv{color:#0ff;font-weight:bold;}
 .dt td.nv{color:#555;}
@@ -94,11 +94,8 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 </div>
 
 <div class="sc on" id="sc0">
-
 <button class="vbtn off" id="vbtn" type="button">🎤 音声入力開始</button>
-
 <div class="dbg" id="dbg">ログ...</div>
-
 <div class="vh">
 <b>発話例:</b><br>
 「ナンバー1 52」→ No.1に52を記録<br>
@@ -107,26 +104,21 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 「訂正 ナンバー1 53」→ No.1を53に修正<br>
 「次」→ 次の測定点へ
 </div>
-
 <div class="csb">
 <div style="font-size:12px;color:#88ccff;">次に測定するNo.</div>
 <div class="n" id="csNum">1</div>
 <div class="s" id="csSub">残り72箇所</div>
 </div>
-
 <div class="lr">
 <div class="l">最新の認識結果</div>
 <div class="v" id="lrVal">---</div>
 <div class="r" id="lrRaw"></div>
 </div>
-
 <div class="pb">
 <span id="prTxt">測定済み: 0 / 72</span>
 <div class="pbr"><div class="pbf" id="prFill" style="width:0%"></div></div>
 </div>
-
 <div class="gr" id="grid"></div>
-
 <div class="nb">
 <button class="bt s" type="button" onclick="prevPt()">⬅️ 前の点</button>
 <button class="bt n" type="button" onclick="nextPt()">次の点 ➡️</button>
@@ -241,11 +233,9 @@ document.getElementById('prTxt').textContent='測定済み: '+f+' / '+C.ts;
 document.getElementById('prFill').style.width=pct+'%';
 }
 
-// ========== 音声認識 ==========
 document.getElementById('vbtn').addEventListener('click',function(e){
 e.preventDefault();
 log('ボタンタップ');
-
 if(listening){
 listening=false;
 if(rec){try{rec.abort();}catch(x){}}
@@ -256,28 +246,23 @@ log('停止');
 showSt('音声認識を停止しました');
 return;
 }
-
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR){
 alert('このブラウザは音声認識に対応していません');
 log('SR未対応');
 return;
 }
-
 listening=true;
 this.className='vbtn rec';
 this.textContent='🔴 認識中... タップで停止';
-
 try{
 rec=new SR();
 rec.lang='ja-JP';
 rec.continuous=false;
 rec.interimResults=false;
 rec.maxAlternatives=1;
-
 rec.onstart=function(){log('認識開始OK');};
 rec.onaudiostart=function(){log('音声検出開始');};
-
 rec.onresult=function(e){
 if(e.results.length>0&&e.results[0].isFinal){
 var t=e.results[0][0].transcript.trim();
@@ -285,33 +270,22 @@ log('認識結果: '+t);
 procVoice(t);
 }
 };
-
 rec.onerror=function(e){
 log('エラー: '+e.error);
 if(e.error==='not-allowed'){
-alert('マイクが許可されていません。\n\nこのページをSafariで直接開いてください。\niframe内（JSBinなど）では動作しません。\n\n設定 > Safari > マイク を確認してください。');
+alert('マイクが許可されていません。\nSafariの設定でマイクを許可してください。');
 listening=false;
 var b=document.getElementById('vbtn');
 b.className='vbtn off';
 b.textContent='🎤 音声入力開始';
 return;
 }
-if(listening){
-setTimeout(function(){
-if(listening)doStart();
-},500);
-}
+if(listening){setTimeout(function(){if(listening)doStart();},500);}
 };
-
 rec.onend=function(){
 log('認識終了');
-if(listening){
-setTimeout(function(){
-if(listening)doStart();
-},300);
-}
+if(listening){setTimeout(function(){if(listening)doStart();},300);}
 };
-
 rec.start();
 log('start()実行');
 showSt('🎤 音声認識開始');
@@ -333,9 +307,7 @@ rec.lang='ja-JP';
 rec.continuous=false;
 rec.interimResults=false;
 rec.maxAlternatives=1;
-
 rec.onstart=function(){log('再開OK');};
-
 rec.onresult=function(e){
 if(e.results.length>0&&e.results[0].isFinal){
 var t=e.results[0][0].transcript.trim();
@@ -343,17 +315,14 @@ log('認識: '+t);
 procVoice(t);
 }
 };
-
 rec.onerror=function(e){
 log('再開エラー: '+e.error);
 if(e.error==='not-allowed'){listening=false;return;}
 if(listening){setTimeout(function(){if(listening)doStart();},500);}
 };
-
 rec.onend=function(){
 if(listening){setTimeout(function(){if(listening)doStart();},300);}
 };
-
 rec.start();
 }catch(ex){
 log('再開例外: '+ex.message);
@@ -361,7 +330,6 @@ if(listening){setTimeout(function(){if(listening)doStart();},1000);}
 }
 }
 
-// ========== 音声処理 ==========
 function k2n(s){
 var m={'零':0,'〇':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'１':'1','２':'2','３':'3','４':'4','５':'5','６':'6','７':'7','８':'8','９':'9','０':'0'};
 var r=s;for(var k in m)r=r.split(k).join(String(m[k]));return r;
@@ -415,7 +383,6 @@ var act=corr?'訂正':'記録';
 setResult('No.'+slot+' → '+val,'ok');
 spk('ナンバー'+slot+' '+val+'を'+act+'しました');
 svData();updAll();
-
 if(cntF()>=C.ts){
 if(cp<C.np-1){
 spk('測定完了。次の測定点に移ります。');
@@ -444,7 +411,6 @@ window.speechSynthesis.speak(u);
 }catch(x){log('spk err:'+x.message);}
 }
 
-// ========== 測定点切替 ==========
 function nextPt(){
 if(cp<C.np-1){
 cp++;updAll();svData();
@@ -454,6 +420,7 @@ spk((cp+1)+'点目、'+C.pp[cp]+'枚目に移ります');
 showSt('⚠️ 最後の測定点です');spk('最後の測定点です');
 }
 }
+
 function prevPt(){
 if(cp>0){
 cp--;updAll();svData();
@@ -462,7 +429,6 @@ spk((cp+1)+'点目に戻ります');
 }else{showSt('⚠️ 最初の測定点です');}
 }
 
-// ========== モーダル ==========
 function openMd(slot,pt){
 mSlot=slot;mPt=pt;
 document.getElementById('mdTitle').textContent='No.'+slot+'（'+C.pp[pt]+'枚目）';
@@ -496,7 +462,6 @@ showSt('🗑 No.'+mSlot+'を削除');
 mdClose();
 }
 
-// ========== タブ ==========
 function switchTab(n){
 for(var i=0;i<3;i++){
 document.getElementById('sc'+i).classList.remove('on');
@@ -507,7 +472,6 @@ document.getElementById('tab'+n).classList.add('on');
 if(n===1)renderTbl();
 }
 
-// ========== 確認テーブル ==========
 function renderTbl(){
 var t=document.getElementById('dtbl');
 var h='<thead><tr><th>No.</th>';
@@ -532,7 +496,6 @@ openMd(parseInt(this.getAttribute('data-s')),parseInt(this.getAttribute('data-p'
 }
 }
 
-// ========== CSV ==========
 function doExport(){
 var ls=['機種,'+C.mc,'日付,'+new Date().toLocaleString('ja-JP'),''];
 var hd='No.';
@@ -551,7 +514,6 @@ document.body.appendChild(a);a.click();document.body.removeChild(a);
 URL.revokeObjectURL(url);showSt('📄 CSV出力しました');
 }
 
-// ========== 設定 ==========
 function buildPtUI(){
 var c=document.getElementById('ptSet'),np=parseInt(document.getElementById('inPt').value)||3,h='';
 for(var i=0;i<np;i++){
@@ -573,7 +535,6 @@ switchTab(0);
 spk('設定を適用しました');showSt('✅ 設定適用');
 }
 
-// ========== プリセット ==========
 function doSavePreset(){
 var nm=C.mc;
 if(!nm||nm==='デフォルト'){nm=prompt('プリセット名',C.mc);if(!nm)return;}
@@ -599,14 +560,13 @@ var pr=JSON.parse(localStorage.getItem('wp')||'{}'),c=document.getElementById('p
 if(!ks.length){c.innerHTML='<p style="color:#666;font-size:11px;">プリセットなし</p>';return;}
 var h='';
 for(var i=0;i<ks.length;i++){
-var n=ks[i],p=pr[n];
+var n=ks[i];
 h+='<div class="pi2"><button class="bt bl" onclick="loadPr(\''+n.replace(/'/g,"\\'")+'\')">📂 '+n+'</button>';
 h+='<button class="bt bd" onclick="delPr(\''+n.replace(/'/g,"\\'")+'\')">🗑</button></div>';
 }
 c.innerHTML=h;
 }
 
-// ========== 保存/読込 ==========
 function svData(){try{localStorage.setItem('wd',JSON.stringify(D));localStorage.setItem('wcp',String(cp));localStorage.setItem('wc',JSON.stringify(C));}catch(x){}}
 function svCfg(){try{localStorage.setItem('wc',JSON.stringify(C));}catch(x){}}
 function ldSaved(){
@@ -627,7 +587,6 @@ var el=document.getElementById('stMsg');el.textContent=m;el.classList.add('sh');
 if(stT)clearTimeout(stT);stT=setTimeout(function(){el.classList.remove('sh');},3000);
 }
 
-// ========== 起動 ==========
 ldSaved();updAll();buildPtUI();renderPr();
 log('アプリ起動完了');
 </script>
