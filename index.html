@@ -45,6 +45,9 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 .bt.s{background:#333;color:#fff;flex:1;}
 .bt.n{background:#0a6640;color:#fff;flex:1;}
 .bt.x{background:#1565c0;color:#fff;width:100%;margin-top:8px;}
+.bt.g{background:#00838f;color:#fff;width:100%;margin-top:8px;}
+.bt.w{background:#e65100;color:#fff;width:100%;margin-top:8px;}
+.bt.r{background:#c62828;color:#fff;width:100%;margin-top:8px;}
 .vh{background:#1a1a3e;border:1px solid #444;border-radius:8px;padding:10px;margin-bottom:10px;font-size:11px;color:#aaa;line-height:1.5;}
 .vh b{color:#0ff;}
 .dtw{overflow-x:auto;margin-bottom:12px;}
@@ -77,6 +80,8 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 .pi2 .bl{flex:1;background:#2a2a4a;color:#fff;text-align:left;}
 .pi2 .bd{background:#c62828;color:#fff;}
 .dbg{background:#0d0d1a;border:1px solid #333;border-radius:8px;padding:8px;margin-bottom:10px;font-size:10px;color:#666;max-height:80px;overflow-y:auto;word-break:break-all;}
+.divider{border:none;border-top:1px solid #333;margin:12px 0;}
+.file-input{display:none;}
 </style>
 </head>
 <body>
@@ -129,7 +134,12 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 <h3 style="color:#e94560;margin-bottom:8px;">📋 全データ一覧</h3>
 <p style="font-size:11px;color:#888;margin-bottom:10px;">セルをタップで修正</p>
 <div class="dtw"><table class="dt" id="dtbl"></table></div>
-<button class="bt x" type="button" onclick="doExport()">📄 CSV出力</button>
+<hr class="divider">
+<h3 style="color:#e94560;margin-bottom:8px;">📁 ファイル操作</h3>
+<button class="bt x" type="button" onclick="doExportCSV()">📄 CSV形式で保存</button>
+<button class="bt g" type="button" onclick="doExportJSON()">💾 JSONで保存（続きから再開用）</button>
+<button class="bt w" type="button" onclick="doImportJSON()">📂 JSONを読み込む</button>
+<input type="file" id="fileInput" class="file-input" accept=".json" onchange="handleFileLoad(event)">
 </div>
 
 <div class="sc" id="sc2">
@@ -144,6 +154,17 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 <div id="ptSet"></div>
 </div>
 <button class="bt p" type="button" onclick="doApply()">✅ 設定を適用して新規開始</button>
+
+<hr class="divider">
+
+<div class="sg">
+<h3>🗑 データリセット</h3>
+<p style="font-size:12px;color:#888;margin-bottom:12px;">測定点ごとにリセット：</p>
+<div id="resetButtons"></div>
+<hr class="divider">
+<button class="bt r" type="button" onclick="resetAll()">⚠️ 全データを一括リセット</button>
+</div>
+
 <div class="sg" style="margin-top:14px;">
 <h3>💾 プリセット</h3>
 <button class="bt s" style="width:100%;" type="button" onclick="doSavePreset()">現在の設定を保存</button>
@@ -182,7 +203,7 @@ for(var i=0;i<C.np;i++)D[i]={};
 cp=0;es=1;
 }
 
-function updAll(){updHdr();updGrid();updProg();updES();}
+function updAll(){updHdr();updGrid();updProg();updES();buildResetButtons();}
 
 function updHdr(){
 document.getElementById('machineInfo').textContent='機種: '+C.mc;
@@ -233,6 +254,112 @@ document.getElementById('prTxt').textContent='測定済み: '+f+' / '+C.ts;
 document.getElementById('prFill').style.width=pct+'%';
 }
 
+// ========== リセット ==========
+function buildResetButtons(){
+var c=document.getElementById('resetButtons');
+if(!c)return;
+var h='';
+for(var i=0;i<C.np;i++){
+h+='<button class="bt" style="background:#7b1fa2;color:#fff;width:100%;margin-top:8px;" type="button" onclick="resetPoint('+i+')">🗑 '+（i+1)+'点目（'+C.pp[i]+'枚目）をリセット</button>';
+}
+c.innerHTML=h;
+}
+
+function resetPoint(pt){
+if(!confirm((pt+1)+'点目（'+C.pp[pt]+'枚目）のデータをリセットしますか？')){return;}
+D[pt]={};
+svData();updAll();
+if(document.getElementById('sc1').classList.contains('on'))renderTbl();
+showSt('🗑 '+(pt+1)+'点目をリセットしました');
+spk((pt+1)+'点目をリセットしました');
+}
+
+function resetAll(){
+if(!confirm('全ての測定データをリセットしますか？\nこの操作は元に戻せません。')){return;}
+for(var i=0;i<C.np;i++)D[i]={};
+cp=0;es=1;
+svData();updAll();
+if(document.getElementById('sc1').classList.contains('on'))renderTbl();
+showSt('🗑 全データをリセットしました');
+spk('全データをリセットしました');
+}
+
+// ========== ファイル操作 ==========
+function doExportCSV(){
+var ls=['機種,'+C.mc,'日付,'+new Date().toLocaleString('ja-JP'),''];
+var hd='No.';
+for(var p=0;p<C.np;p++)hd+=','+C.pp[p]+'枚目';
+ls.push(hd);
+for(var i=1;i<=C.ts;i++){
+var r=''+i;
+for(var p2=0;p2<C.np;p2++){var v=D[p2][i];r+=','+(v!==undefined&&v!==null?v:'');}
+ls.push(r);
+}
+var blob=new Blob(['\uFEFF'+ls.join('\n')],{type:'text/csv;charset=utf-8;'});
+var url=URL.createObjectURL(blob);
+var a=document.createElement('a');a.href=url;
+a.download='check_'+C.mc+'_'+new Date().toISOString().slice(0,10)+'.csv';
+document.body.appendChild(a);a.click();document.body.removeChild(a);
+URL.revokeObjectURL(url);
+showSt('📄 CSVを保存しました');
+}
+
+function doExportJSON(){
+var saveData={
+version:1,
+savedAt:new Date().toISOString(),
+config:C,
+currentPoint:cp,
+data:D
+};
+var blob=new Blob([JSON.stringify(saveData,null,2)],{type:'application/json'});
+var url=URL.createObjectURL(blob);
+var a=document.createElement('a');a.href=url;
+a.download='check_'+C.mc+'_'+new Date().toISOString().slice(0,10)+'.json';
+document.body.appendChild(a);a.click();document.body.removeChild(a);
+URL.revokeObjectURL(url);
+showSt('💾 JSONを保存しました');
+}
+
+function doImportJSON(){
+document.getElementById('fileInput').click();
+}
+
+function handleFileLoad(e){
+var file=e.target.files[0];
+if(!file)return;
+var reader=new FileReader();
+reader.onload=function(ev){
+try{
+var sd=JSON.parse(ev.target.result);
+if(!sd.config||!sd.data){
+alert('ファイルの形式が正しくありません');
+return;
+}
+if(!confirm('保存データを読み込みます。\n現在のデータは上書きされます。\nよろしいですか？')){return;}
+C=sd.config;
+D={};
+for(var p=0;p<C.np;p++){
+D[p]=sd.data[p]||{};
+}
+cp=sd.currentPoint||0;
+if(cp>=C.np)cp=0;
+document.getElementById('inMc').value=C.mc;
+document.getElementById('inSl').value=C.ts;
+document.getElementById('inPt').value=C.np;
+svData();updAll();buildPtUI();
+if(document.getElementById('sc1').classList.contains('on'))renderTbl();
+showSt('📂 データを読み込みました：'+C.mc);
+spk('データを読み込みました');
+}catch(ex){
+alert('読み込みに失敗しました：'+ex.message);
+}
+};
+reader.readAsText(file);
+e.target.value='';
+}
+
+// ========== 音声認識 ==========
 document.getElementById('vbtn').addEventListener('click',function(e){
 e.preventDefault();
 log('ボタンタップ');
@@ -330,6 +457,7 @@ if(listening){setTimeout(function(){if(listening)doStart();},1000);}
 }
 }
 
+// ========== 音声処理 ==========
 function k2n(s){
 var m={'零':0,'〇':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'１':'1','２':'2','３':'3','４':'4','５':'5','６':'6','７':'7','８':'8','９':'9','０':'0'};
 var r=s;for(var k in m)r=r.split(k).join(String(m[k]));return r;
@@ -339,7 +467,6 @@ function procVoice(text){
 document.getElementById('lrRaw').textContent='認識:「'+text+'」';
 var n=k2n(text).replace(/[、。！？\s]+/g,' ').trim();
 log('処理: '+n);
-
 if(n.indexOf('訂正')>=0||n.indexOf('修正')>=0){
 var cm=n.match(/(\d+)\D+(\d+)/);
 if(cm){
@@ -349,10 +476,8 @@ if(sl>=1&&sl<=C.ts){recVal(sl,vl,true);return;}
 setResult('❌ 訂正失敗','ng');
 spk('認識できませんでした');return;
 }
-
 if(n.indexOf('次')>=0||n.indexOf('つぎ')>=0){nextPt();return;}
 if(n.indexOf('前')>=0||n.indexOf('戻')>=0){prevPt();return;}
-
 var pats=[
 /ナンバー\D*(\d+)\D+(\d+)/,
 /[Nn][Oo]\.?\s*(\d+)\D+(\d+)/,
@@ -366,13 +491,8 @@ var s2=parseInt(m2[1]),v2=parseInt(m2[2]);
 if(s2>=1&&s2<=C.ts){recVal(s2,v2,false);return;}
 }
 }
-
 var sn=n.match(/(\d+)/);
-if(sn){
-var v3=parseInt(sn[1]);
-recVal(es,v3,false);return;
-}
-
+if(sn){recVal(es,parseInt(sn[1]),false);return;}
 setResult('❌ 認識できません','ng');
 spk('認識できませんでした');
 }
@@ -416,9 +536,7 @@ if(cp<C.np-1){
 cp++;updAll();svData();
 showSt('➡️ '+(cp+1)+'点目（'+C.pp[cp]+'枚目）');
 spk((cp+1)+'点目、'+C.pp[cp]+'枚目に移ります');
-}else{
-showSt('⚠️ 最後の測定点です');spk('最後の測定点です');
-}
+}else{showSt('⚠️ 最後の測定点です');spk('最後の測定点です');}
 }
 
 function prevPt(){
@@ -494,24 +612,6 @@ cells[c].addEventListener('click',function(){
 openMd(parseInt(this.getAttribute('data-s')),parseInt(this.getAttribute('data-p')));
 });
 }
-}
-
-function doExport(){
-var ls=['機種,'+C.mc,'日付,'+new Date().toLocaleString('ja-JP'),''];
-var hd='No.';
-for(var p=0;p<C.np;p++)hd+=','+C.pp[p]+'枚目';
-ls.push(hd);
-for(var i=1;i<=C.ts;i++){
-var r=''+i;
-for(var p2=0;p2<C.np;p2++){var v=D[p2][i];r+=','+(v!==undefined&&v!==null?v:'');}
-ls.push(r);
-}
-var blob=new Blob(['\uFEFF'+ls.join('\n')],{type:'text/csv;charset=utf-8;'});
-var url=URL.createObjectURL(blob);
-var a=document.createElement('a');a.href=url;
-a.download='check_'+C.mc+'_'+new Date().toISOString().slice(0,10)+'.csv';
-document.body.appendChild(a);a.click();document.body.removeChild(a);
-URL.revokeObjectURL(url);showSt('📄 CSV出力しました');
 }
 
 function buildPtUI(){
