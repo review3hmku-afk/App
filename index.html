@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>点検記録</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+input,textarea{-webkit-user-select:auto;user-select:auto;}
+body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-height:100vh;}
+.hd{background:#16213e;padding:12px;text-align:center;position:sticky;top:0;z-index:100;border-bottom:2px solid #e94560;}
+.hd h1{font-size:16px;color:#e94560;}
+.hd .pi{font-size:18px;color:#0ff;margin-top:6px;font-weight:bold;}
+.hd .mi{font-size:12px;color:#888;margin-top:2px;}
+.tabs{display:flex;background:#16213e;position:sticky;top:72px;z-index:99;}
+.tb{flex:1;padding:12px;text-align:center;font-size:14px;color:#888;cursor:pointer;border-bottom:3px solid transparent;}
+.tb.on{color:#e94560;border-bottom-color:#e94560;font-weight:bold;}
+.sc{display:none;padding:12px;padding-bottom:80px;}
+.sc.on{display:block;}
+.vbtn{width:100%;padding:20px;border-radius:16px;border:none;font-size:20px;font-weight:bold;cursor:pointer;margin-bottom:10px;}
+.vbtn.off{background:#e94560;color:#fff;}
+.vbtn.rec{background:#00c853;color:#fff;animation:pls 1s infinite;}
+@keyframes pls{0%,100%{opacity:1;}50%{opacity:.6;}}
+.csb{background:#0a3d62;border:2px solid #0ff;border-radius:12px;padding:14px;margin-bottom:10px;text-align:center;}
+.csb .n{font-size:36px;font-weight:bold;color:#0ff;}
+.csb .s{font-size:12px;color:#88ccff;margin-top:4px;}
+.lr{background:#16213e;border-radius:12px;padding:14px;margin-bottom:10px;text-align:center;min-height:70px;border:1px solid #333;}
+.lr .l{font-size:12px;color:#888;}
+.lr .v{font-size:26px;font-weight:bold;color:#0ff;margin-top:6px;word-break:break-all;}
+.lr .r{font-size:11px;color:#666;margin-top:4px;word-break:break-all;}
+.lr .v.ok{color:#00e676;}
+.lr .v.ng{color:#ff5555;}
+.pb{background:#16213e;border-radius:8px;padding:10px;margin-bottom:10px;text-align:center;font-size:13px;}
+.pbr{background:#333;border-radius:4px;height:8px;margin-top:6px;}
+.pbf{background:linear-gradient(90deg,#e94560,#00c853);height:8px;border-radius:4px;transition:width .3s;}
+.gr{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:10px;}
+.gc{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:5px;font-size:10px;font-weight:bold;cursor:pointer;}
+.gc.e{background:#2a2a4a;color:#666;}
+.gc.f{background:#0a6640;color:#fff;}
+.gc.c{background:#e94560;color:#fff;box-shadow:0 0 8px #e94560;}
+.gc .cv{font-size:8px;color:#aff;margin-top:1px;}
+.nb{display:flex;gap:8px;margin-bottom:10px;}
+.bt{padding:14px 16px;border-radius:10px;border:none;font-size:14px;font-weight:bold;cursor:pointer;text-align:center;}
+.bt.p{background:#e94560;color:#fff;width:100%;margin-top:8px;}
+.bt.s{background:#333;color:#fff;flex:1;}
+.bt.n{background:#0a6640;color:#fff;flex:1;}
+.bt.x{background:#1565c0;color:#fff;width:100%;margin-top:8px;}
+.vh{background:#1a1a3e;border:1px solid #444;border-radius:8px;padding:10px;margin-bottom:10px;font-size:11px;color:#aaa;line-height:1.5;}
+.vh b{color:#0ff;}
+.dtw{overflow-x:auto;margin-bottom:12px;}
+.dt{width:100%;border-collapse:collapse;font-size:12px;}
+.dt th{background:#e94560;color:#fff;padding:8px 4px;position:sticky;top:108px;z-index:10;}
+.dt td{background:#16213e;padding:8px 4px;text-align:center;border:1px solid #333;cursor:pointer;}
+.dt td.hv{color:#0ff;font-weight:bold;}
+.dt td.nv{color:#555;}
+.dt tr:nth-child(even) td{background:#1a1a3e;}
+.sg{background:#16213e;border-radius:12px;padding:14px;margin-bottom:12px;}
+.sg h3{font-size:14px;color:#e94560;margin-bottom:10px;}
+.sr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.sr label{font-size:13px;color:#ccc;}
+.sr input{width:90px;padding:7px;border-radius:8px;border:1px solid #444;background:#2a2a4a;color:#fff;text-align:center;font-size:16px;}
+.sr input.w{width:160px;}
+.mo{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;}
+.mo.sh{display:flex;}
+.md{background:#16213e;border-radius:16px;padding:24px;width:90%;max-width:320px;border:2px solid #e94560;}
+.md h3{color:#e94560;margin-bottom:14px;text-align:center;}
+.md input{width:100%;padding:14px;font-size:28px;text-align:center;border-radius:8px;border:2px solid #e94560;background:#2a2a4a;color:#fff;margin-bottom:14px;}
+.mb{display:flex;gap:10px;}
+.mb .bt{flex:1;padding:14px;}
+.bt.ca{background:#555;color:#fff;}
+.bt.sv{background:#e94560;color:#fff;}
+.bt.dl{background:#c62828;color:#fff;width:100%;margin-top:8px;padding:10px;font-size:12px;}
+.sm{position:fixed;bottom:16px;left:12px;right:12px;text-align:center;padding:10px;font-size:13px;color:#fff;background:rgba(0,0,0,.85);border-radius:8px;z-index:300;display:none;}
+.sm.sh{display:block;}
+.pi2{display:flex;gap:8px;margin-bottom:8px;}
+.pi2 .bt{font-size:12px;padding:8px 10px;}
+.pi2 .bl{flex:1;background:#2a2a4a;color:#fff;text-align:left;}
+.pi2 .bd{background:#c62828;color:#fff;}
+.dbg{background:#0d0d1a;border:1px solid #333;border-radius:8px;padding:8px;margin-bottom:10px;font-size:10px;color:#666;max-height:80px;overflow-y:auto;word-break:break-all;}
+</style>
+</head>
+<body>
+
+<div class="hd">
+<h1>📋 点検記録</h1>
+<div class="pi" id="pointInfo">1点目 / 3点中（5枚目）</div>
+<div class="mi" id="machineInfo">機種: デフォルト</div>
+</div>
+
+<div class="tabs">
+<div class="tb on" id="tab0" onclick="switchTab(0)">📏 測定</div>
+<div class="tb" id="tab1" onclick="switchTab(1)">📋 確認</div>
+<div class="tb" id="tab2" onclick="switchTab(2)">⚙️ 設定</div>
+</div>
+
+<div class="sc on" id="sc0">
+
+<button class="vbtn off" id="vbtn" type="button">🎤 音声入力開始</button>
+
+<div class="dbg" id="dbg">ログ...</div>
+
+<div class="vh">
+<b>発話例:</b><br>
+「ナンバー1 52」→ No.1に52を記録<br>
+「1番 52」→ No.1に52を記録<br>
+「52」→ 現在のNo.に52を記録<br>
+「訂正 ナンバー1 53」→ No.1を53に修正<br>
+「次」→ 次の測定点へ
+</div>
+
+<div class="csb">
+<div style="font-size:12px;color:#88ccff;">次に測定するNo.</div>
+<div class="n" id="csNum">1</div>
+<div class="s" id="csSub">残り72箇所</div>
+</div>
+
+<div class="lr">
+<div class="l">最新の認識結果</div>
+<div class="v" id="lrVal">---</div>
+<div class="r" id="lrRaw"></div>
+</div>
+
+<div class="pb">
+<span id="prTxt">測定済み: 0 / 72</span>
+<div class="pbr"><div class="pbf" id="prFill" style="width:0%"></div></div>
+</div>
+
+<div class="gr" id="grid"></div>
+
+<div class="nb">
+<button class="bt s" type="button" onclick="prevPt()">⬅️ 前の点</button>
+<button class="bt n" type="button" onclick="nextPt()">次の点 ➡️</button>
+</div>
+</div>
+
+<div class="sc" id="sc1">
+<h3 style="color:#e94560;margin-bottom:8px;">📋 全データ一覧</h3>
+<p style="font-size:11px;color:#888;margin-bottom:10px;">セルをタップで修正</p>
+<div class="dtw"><table class="dt" id="dtbl"></table></div>
+<button class="bt x" type="button" onclick="doExport()">📄 CSV出力</button>
+</div>
+
+<div class="sc" id="sc2">
+<div class="sg">
+<h3>📐 基本設定</h3>
+<div class="sr"><label>機種名</label><input type="text" id="inMc" value="デフォルト" class="w"></div>
+<div class="sr"><label>測定箇所数</label><input type="number" id="inSl" value="72" min="1" max="200"></div>
+<div class="sr"><label>測定点数</label><input type="number" id="inPt" value="3" min="1" max="10" onchange="buildPtUI()"></div>
+</div>
+<div class="sg">
+<h3>📍 各測定点の位置（枚目）</h3>
+<div id="ptSet"></div>
+</div>
+<button class="bt p" type="button" onclick="doApply()">✅ 設定を適用して新規開始</button>
+<div class="sg" style="margin-top:14px;">
+<h3>💾 プリセット</h3>
+<button class="bt s" style="width:100%;" type="button" onclick="doSavePreset()">現在の設定を保存</button>
+<div id="prList" style="margin-top:10px;"></div>
+</div>
+</div>
+
+<div class="mo" id="modal" onclick="modalOutside(event)">
+<div class="md">
+<h3 id="mdTitle">No.1</h3>
+<input type="number" id="mdIn" inputmode="numeric" pattern="[0-9]*" placeholder="数値">
+<div class="mb">
+<button class="bt ca" type="button" onclick="mdClose()">取消</button>
+<button class="bt sv" type="button" onclick="mdSave()">保存</button>
+</div>
+<button class="bt dl" type="button" onclick="mdDel()">🗑 削除</button>
+</div>
+</div>
+
+<div class="sm" id="stMsg"></div>
+
+<script>
+var C={mc:'デフォルト',ts:72,np:3,pp:[5,13,19]};
+var cp=0,es=1,D={},listening=false,rec=null,mSlot=null,mPt=null,stT=null;
+var logEl;
+
+function log(s){
+if(!logEl)logEl=document.getElementById('dbg');
+var t=new Date().toLocaleTimeString();
+logEl.textContent=t+': '+s+'\n'+logEl.textContent.substring(0,500);
+}
+
+function initD(){
+D={};
+for(var i=0;i<C.np;i++)D[i]={};
+cp=0;es=1;
+}
+
+function updAll(){updHdr();updGrid();updProg();updES();}
+
+function updHdr(){
+document.getElementById('machineInfo').textContent='機種: '+C.mc;
+var pos=C.pp[cp]||'?';
+document.getElementById('pointInfo').textContent=(cp+1)+'点目 / '+C.np+'点中（'+pos+'枚目）';
+}
+
+function updES(){
+var n=1;
+for(var i=1;i<=C.ts;i++){
+if(D[cp][i]===undefined||D[cp][i]===null){n=i;break;}
+if(i===C.ts)n=C.ts;
+}
+es=n;
+document.getElementById('csNum').textContent=n;
+var rem=0;
+for(var j=1;j<=C.ts;j++){
+if(D[cp][j]===undefined||D[cp][j]===null)rem++;
+}
+document.getElementById('csSub').textContent='残り'+rem+'箇所';
+}
+
+function cntF(){
+var c=0;
+for(var i=1;i<=C.ts;i++){
+if(D[cp][i]!==undefined&&D[cp][i]!==null)c++;
+}
+return c;
+}
+
+function updGrid(){
+var g=document.getElementById('grid');
+g.innerHTML='';
+for(var i=1;i<=C.ts;i++){
+var d=document.createElement('div');
+var v=D[cp][i];
+var hv=v!==undefined&&v!==null;
+d.className='gc '+(i===es?'c':hv?'f':'e');
+d.innerHTML=i+(hv?'<span class="cv">'+v+'</span>':'');
+(function(slot){d.onclick=function(){openMd(slot,cp);};})(i);
+g.appendChild(d);
+}
+}
+
+function updProg(){
+var f=cntF(),pct=Math.round(f/C.ts*100);
+document.getElementById('prTxt').textContent='測定済み: '+f+' / '+C.ts;
+document.getElementById('prFill').style.width=pct+'%';
+}
+
+// ========== 音声認識 ==========
+document.getElementById('vbtn').addEventListener('click',function(e){
+e.preventDefault();
+log('ボタンタップ');
+
+if(listening){
+listening=false;
+if(rec){try{rec.abort();}catch(x){}}
+rec=null;
+this.className='vbtn off';
+this.textContent='🎤 音声入力開始';
+log('停止');
+showSt('音声認識を停止しました');
+return;
+}
+
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){
+alert('このブラウザは音声認識に対応していません');
+log('SR未対応');
+return;
+}
+
+listening=true;
+this.className='vbtn rec';
+this.textContent='🔴 認識中... タップで停止';
+
+try{
+rec=new SR();
+rec.lang='ja-JP';
+rec.continuous=false;
+rec.interimResults=false;
+rec.maxAlternatives=1;
+
+rec.onstart=function(){log('認識開始OK');};
+rec.onaudiostart=function(){log('音声検出開始');};
+
+rec.onresult=function(e){
+if(e.results.length>0&&e.results[0].isFinal){
+var t=e.results[0][0].transcript.trim();
+log('認識結果: '+t);
+procVoice(t);
+}
+};
+
+rec.onerror=function(e){
+log('エラー: '+e.error);
+if(e.error==='not-allowed'){
+alert('マイクが許可されていません。\n\nこのページをSafariで直接開いてください。\niframe内（JSBinなど）では動作しません。\n\n設定 > Safari > マイク を確認してください。');
+listening=false;
+var b=document.getElementById('vbtn');
+b.className='vbtn off';
+b.textContent='🎤 音声入力開始';
+return;
+}
+if(listening){
+setTimeout(function(){
+if(listening)doStart();
+},500);
+}
+};
+
+rec.onend=function(){
+log('認識終了');
+if(listening){
+setTimeout(function(){
+if(listening)doStart();
+},300);
+}
+};
+
+rec.start();
+log('start()実行');
+showSt('🎤 音声認識開始');
+}catch(ex){
+log('例外: '+ex.message);
+alert('音声認識開始失敗: '+ex.message);
+listening=false;
+this.className='vbtn off';
+this.textContent='🎤 音声入力開始';
+}
+},false);
+
+function doStart(){
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR||!listening)return;
+try{
+rec=new SR();
+rec.lang='ja-JP';
+rec.continuous=false;
+rec.interimResults=false;
+rec.maxAlternatives=1;
+
+rec.onstart=function(){log('再開OK');};
+
+rec.onresult=function(e){
+if(e.results.length>0&&e.results[0].isFinal){
+var t=e.results[0][0].transcript.trim();
+log('認識: '+t);
+procVoice(t);
+}
+};
+
+rec.onerror=function(e){
+log('再開エラー: '+e.error);
+if(e.error==='not-allowed'){listening=false;return;}
+if(listening){setTimeout(function(){if(listening)doStart();},500);}
+};
+
+rec.onend=function(){
+if(listening){setTimeout(function(){if(listening)doStart();},300);}
+};
+
+rec.start();
+}catch(ex){
+log('再開例外: '+ex.message);
+if(listening){setTimeout(function(){if(listening)doStart();},1000);}
+}
+}
+
+// ========== 音声処理 ==========
+function k2n(s){
+var m={'零':0,'〇':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'１':'1','２':'2','３':'3','４':'4','５':'5','６':'6','７':'7','８':'8','９':'9','０':'0'};
+var r=s;for(var k in m)r=r.split(k).join(String(m[k]));return r;
+}
+
+function procVoice(text){
+document.getElementById('lrRaw').textContent='認識:「'+text+'」';
+var n=k2n(text).replace(/[、。！？\s]+/g,' ').trim();
+log('処理: '+n);
+
+if(n.indexOf('訂正')>=0||n.indexOf('修正')>=0){
+var cm=n.match(/(\d+)\D+(\d+)/);
+if(cm){
+var sl=parseInt(cm[1]),vl=parseInt(cm[2]);
+if(sl>=1&&sl<=C.ts){recVal(sl,vl,true);return;}
+}
+setResult('❌ 訂正失敗','ng');
+spk('認識できませんでした');return;
+}
+
+if(n.indexOf('次')>=0||n.indexOf('つぎ')>=0){nextPt();return;}
+if(n.indexOf('前')>=0||n.indexOf('戻')>=0){prevPt();return;}
+
+var pats=[
+/ナンバー\D*(\d+)\D+(\d+)/,
+/[Nn][Oo]\.?\s*(\d+)\D+(\d+)/,
+/(\d+)\s*番\D*(\d+)/,
+/(\d+)\D+(\d+)/
+];
+for(var i=0;i<pats.length;i++){
+var m2=n.match(pats[i]);
+if(m2){
+var s2=parseInt(m2[1]),v2=parseInt(m2[2]);
+if(s2>=1&&s2<=C.ts){recVal(s2,v2,false);return;}
+}
+}
+
+var sn=n.match(/(\d+)/);
+if(sn){
+var v3=parseInt(sn[1]);
+recVal(es,v3,false);return;
+}
+
+setResult('❌ 認識できません','ng');
+spk('認識できませんでした');
+}
+
+function recVal(slot,val,corr){
+D[cp][slot]=val;
+var act=corr?'訂正':'記録';
+setResult('No.'+slot+' → '+val,'ok');
+spk('ナンバー'+slot+' '+val+'を'+act+'しました');
+svData();updAll();
+
+if(cntF()>=C.ts){
+if(cp<C.np-1){
+spk('測定完了。次の測定点に移ります。');
+setTimeout(function(){nextPt();},2000);
+}else{
+spk('全測定完了。お疲れ様でした。');
+showSt('🎉 全測定完了！');
+}
+}
+}
+
+function setResult(txt,cls){
+var el=document.getElementById('lrVal');
+el.textContent=txt;
+el.className='v'+(cls?' '+cls:'');
+if(cls)setTimeout(function(){el.className='v';},3000);
+}
+
+function spk(t){
+if(!window.speechSynthesis)return;
+try{
+window.speechSynthesis.cancel();
+var u=new SpeechSynthesisUtterance(t);
+u.lang='ja-JP';u.rate=1.1;u.volume=1;
+window.speechSynthesis.speak(u);
+}catch(x){log('spk err:'+x.message);}
+}
+
+// ========== 測定点切替 ==========
+function nextPt(){
+if(cp<C.np-1){
+cp++;updAll();svData();
+showSt('➡️ '+(cp+1)+'点目（'+C.pp[cp]+'枚目）');
+spk((cp+1)+'点目、'+C.pp[cp]+'枚目に移ります');
+}else{
+showSt('⚠️ 最後の測定点です');spk('最後の測定点です');
+}
+}
+function prevPt(){
+if(cp>0){
+cp--;updAll();svData();
+showSt('⬅️ '+(cp+1)+'点目（'+C.pp[cp]+'枚目）');
+spk((cp+1)+'点目に戻ります');
+}else{showSt('⚠️ 最初の測定点です');}
+}
+
+// ========== モーダル ==========
+function openMd(slot,pt){
+mSlot=slot;mPt=pt;
+document.getElementById('mdTitle').textContent='No.'+slot+'（'+C.pp[pt]+'枚目）';
+var ev=D[pt][slot];
+document.getElementById('mdIn').value=(ev!==undefined&&ev!==null)?ev:'';
+document.getElementById('modal').classList.add('sh');
+setTimeout(function(){document.getElementById('mdIn').focus();},100);
+}
+function mdClose(){document.getElementById('modal').classList.remove('sh');mSlot=null;mPt=null;}
+function modalOutside(e){if(e.target===document.getElementById('modal'))mdClose();}
+function mdSave(){
+var v=document.getElementById('mdIn').value.trim();
+if(v!==''){
+var num=parseInt(v);
+if(!isNaN(num)){
+D[mPt][mSlot]=num;
+svData();updAll();
+if(document.getElementById('sc1').classList.contains('on'))renderTbl();
+showSt('✅ No.'+mSlot+'を'+num+'に保存');
+}
+}
+mdClose();
+}
+function mdDel(){
+if(mSlot!==null&&mPt!==null){
+delete D[mPt][mSlot];
+svData();updAll();
+if(document.getElementById('sc1').classList.contains('on'))renderTbl();
+showSt('🗑 No.'+mSlot+'を削除');
+}
+mdClose();
+}
+
+// ========== タブ ==========
+function switchTab(n){
+for(var i=0;i<3;i++){
+document.getElementById('sc'+i).classList.remove('on');
+document.getElementById('tab'+i).classList.remove('on');
+}
+document.getElementById('sc'+n).classList.add('on');
+document.getElementById('tab'+n).classList.add('on');
+if(n===1)renderTbl();
+}
+
+// ========== 確認テーブル ==========
+function renderTbl(){
+var t=document.getElementById('dtbl');
+var h='<thead><tr><th>No.</th>';
+for(var p=0;p<C.np;p++)h+='<th>'+C.pp[p]+'枚目</th>';
+h+='</tr></thead><tbody>';
+for(var i=1;i<=C.ts;i++){
+h+='<tr><td style="font-weight:bold;color:#e94560;">'+i+'</td>';
+for(var p2=0;p2<C.np;p2++){
+var v=D[p2][i];
+var hv=v!==undefined&&v!==null;
+h+='<td class="'+(hv?'hv':'nv')+'" data-s="'+i+'" data-p="'+p2+'">'+(hv?v:'-')+'</td>';
+}
+h+='</tr>';
+}
+h+='</tbody>';
+t.innerHTML=h;
+var cells=t.querySelectorAll('td[data-s]');
+for(var c=0;c<cells.length;c++){
+cells[c].addEventListener('click',function(){
+openMd(parseInt(this.getAttribute('data-s')),parseInt(this.getAttribute('data-p')));
+});
+}
+}
+
+// ========== CSV ==========
+function doExport(){
+var ls=['機種,'+C.mc,'日付,'+new Date().toLocaleString('ja-JP'),''];
+var hd='No.';
+for(var p=0;p<C.np;p++)hd+=','+C.pp[p]+'枚目';
+ls.push(hd);
+for(var i=1;i<=C.ts;i++){
+var r=''+i;
+for(var p2=0;p2<C.np;p2++){var v=D[p2][i];r+=','+(v!==undefined&&v!==null?v:'');}
+ls.push(r);
+}
+var blob=new Blob(['\uFEFF'+ls.join('\n')],{type:'text/csv;charset=utf-8;'});
+var url=URL.createObjectURL(blob);
+var a=document.createElement('a');a.href=url;
+a.download='check_'+C.mc+'_'+new Date().toISOString().slice(0,10)+'.csv';
+document.body.appendChild(a);a.click();document.body.removeChild(a);
+URL.revokeObjectURL(url);showSt('📄 CSV出力しました');
+}
+
+// ========== 設定 ==========
+function buildPtUI(){
+var c=document.getElementById('ptSet'),np=parseInt(document.getElementById('inPt').value)||3,h='';
+for(var i=0;i<np;i++){
+var v=C.pp[i]||(i*5+5);
+h+='<div class="sr"><label>'+(i+1)+'点目</label><input type="number" class="ppi" value="'+v+'" min="1"> 枚目</div>';
+}
+c.innerHTML=h;
+}
+
+function doApply(){
+if(!confirm('設定を適用してデータ初期化しますか？'))return;
+C.mc=document.getElementById('inMc').value||'デフォルト';
+C.ts=parseInt(document.getElementById('inSl').value)||72;
+C.np=parseInt(document.getElementById('inPt').value)||3;
+var ps=document.querySelectorAll('.ppi');
+C.pp=[];for(var i=0;i<ps.length;i++)C.pp.push(parseInt(ps[i].value)||(i*5+5));
+initD();updAll();buildPtUI();svCfg();svData();
+switchTab(0);
+spk('設定を適用しました');showSt('✅ 設定適用');
+}
+
+// ========== プリセット ==========
+function doSavePreset(){
+var nm=C.mc;
+if(!nm||nm==='デフォルト'){nm=prompt('プリセット名',C.mc);if(!nm)return;}
+var pr=JSON.parse(localStorage.getItem('wp')||'{}');
+pr[nm]={mc:nm,ts:C.ts,np:C.np,pp:C.pp.slice()};
+localStorage.setItem('wp',JSON.stringify(pr));renderPr();showSt('💾 保存: '+nm);
+}
+function loadPr(nm){
+var pr=JSON.parse(localStorage.getItem('wp')||'{}');
+if(!pr[nm])return;var p=pr[nm];
+document.getElementById('inMc').value=p.mc;
+document.getElementById('inSl').value=p.ts;
+document.getElementById('inPt').value=p.np;
+C.pp=p.pp.slice();buildPtUI();showSt('📂 '+nm+'を読込');
+}
+function delPr(nm){
+if(!confirm(nm+'を削除？'))return;
+var pr=JSON.parse(localStorage.getItem('wp')||'{}');
+delete pr[nm];localStorage.setItem('wp',JSON.stringify(pr));renderPr();
+}
+function renderPr(){
+var pr=JSON.parse(localStorage.getItem('wp')||'{}'),c=document.getElementById('prList'),ks=Object.keys(pr);
+if(!ks.length){c.innerHTML='<p style="color:#666;font-size:11px;">プリセットなし</p>';return;}
+var h='';
+for(var i=0;i<ks.length;i++){
+var n=ks[i],p=pr[n];
+h+='<div class="pi2"><button class="bt bl" onclick="loadPr(\''+n.replace(/'/g,"\\'")+'\')">📂 '+n+'</button>';
+h+='<button class="bt bd" onclick="delPr(\''+n.replace(/'/g,"\\'")+'\')">🗑</button></div>';
+}
+c.innerHTML=h;
+}
+
+// ========== 保存/読込 ==========
+function svData(){try{localStorage.setItem('wd',JSON.stringify(D));localStorage.setItem('wcp',String(cp));localStorage.setItem('wc',JSON.stringify(C));}catch(x){}}
+function svCfg(){try{localStorage.setItem('wc',JSON.stringify(C));}catch(x){}}
+function ldSaved(){
+try{
+var sc=localStorage.getItem('wc');
+if(sc){var c=JSON.parse(sc);C.mc=c.mc||'デフォルト';C.ts=c.ts||72;C.np=c.np||3;C.pp=c.pp||[5,13,19];
+document.getElementById('inMc').value=C.mc;document.getElementById('inSl').value=C.ts;document.getElementById('inPt').value=C.np;}
+initD();
+var sd=localStorage.getItem('wd');
+if(sd){var pd=JSON.parse(sd);for(var p=0;p<C.np;p++){if(pd[p])for(var k in pd[p])D[p][k]=pd[p][k];}}
+var sp=localStorage.getItem('wcp');
+if(sp!==null){cp=parseInt(sp);if(cp>=C.np)cp=0;}
+}catch(x){initD();}
+}
+
+function showSt(m){
+var el=document.getElementById('stMsg');el.textContent=m;el.classList.add('sh');
+if(stT)clearTimeout(stT);stT=setTimeout(function(){el.classList.remove('sh');},3000);
+}
+
+// ========== 起動 ==========
+ldSaved();updAll();buildPtUI();renderPr();
+log('アプリ起動完了');
+</script>
+</body>
+</html>
