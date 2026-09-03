@@ -5,96 +5,194 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>異物管理対策</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Hiragino Sans', 'Yu Gothic', sans-serif; background: #f0f4f8; }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Hiragino Sans','Yu Gothic',sans-serif;background:#f0f4f8;}
+.print-btn{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#2563eb;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:15px;cursor:pointer;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+.page{max-width:800px;margin:60px auto 0;padding:16px;}
+.title-slide{background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 50%,#3b82f6 100%);border-radius:16px;padding:48px 24px;text-align:center;color:white;margin-bottom:24px;}
+.title-slide .icon{font-size:48px;margin-bottom:16px;}
+.title-slide h1{font-size:26px;font-weight:bold;margin-bottom:8px;}
+.title-slide p{font-size:13px;opacity:0.85;margin-bottom:20px;}
+.title-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+.title-tags span{border:1px solid rgba(255,255,255,0.5);border-radius:20px;padding:4px 12px;font-size:12px;}
+.section-header{background:linear-gradient(90deg,#1e3a8a,#2563eb);color:white;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.section-header .slide-num{font-size:10px;opacity:0.7;display:block;}
+.section-header h2{font-size:18px;font-weight:bold;}
+.card{background:white;border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.col-red{background:#fff5f5;border-radius:10px;padding:14px;border-left:4px solid #ef4444;}
+.col-green{background:#f0fdf4;border-radius:10px;padding:14px;border-left:4px solid #22c55e;}
+.col-blue{background:#eff6ff;border-radius:10px;padding:14px;border-left:4px solid #3b82f6;}
+.col-yellow{background:#fefce8;border-radius:10px;padding:14px;border-left:4px solid #eab308;}
+.col-title{font-size:13px;font-weight:bold;margin-bottom:8px;}
+.col-title.red{color:#ef4444;}
+.col-title.green{color:#22c55e;}
+.col-title.blue{color:#2563eb;}
+.col-title.yellow{color:#ca8a04;}
+ul{padding-left:16px;}
+li{font-size:13px;margin-bottom:4px;line-height:1.6;}
+.illust{width:100%;border-radius:10px;margin:12px 0;object-fit:cover;}
+.note{background:#fef9c3;border-left:4px solid #eab308;border-radius:8px;padding:12px 14px;font-size:12px;color:#713f12;margin:12px 0;line-height:1.6;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:#1e3a8a;color:white;padding:8px;text-align:left;}
+td{padding:8px;border-bottom:1px solid #e5e7eb;}
+tr:nth-child(even){background:#f8fafc;}
+.summary-box{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;border-radius:12px;padding:20px;margin-bottom:16px;text-align:center;}
+.summary-box h3{font-size:16px;margin-bottom:8px;}
+.summary-box p{font-size:13px;opacity:0.9;line-height:1.6;}
+.footer{text-align:right;font-size:10px;color:#9ca3af;padding:8px 0 24px;}
+.alarm-box{background:#f0fdf4;border:2px solid #22c55e;border-radius:12px;padding:16px;margin:12px 0;text-align:center;}
+.alarm-box .alarm-icon{font-size:36px;margin-bottom:8px;}
+.alarm-box h3{font-size:15px;color:#15803d;margin-bottom:6px;}
+.alarm-box p{font-size:13px;color:#166534;line-height:1.6;}
+@media print{.print-btn{display:none;}body{background:white;}.page{margin:0;}}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">🖨️ 印刷する</button>
+<div class="page">
 
-  .print-btn {
-    position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
-    background: #2563eb; color: white; border: none; padding: 10px 24px;
-    border-radius: 8px; font-size: 15px; cursor: pointer; z-index: 100;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  }
+<div class="title-slide">
+<div class="icon">🛡️</div>
+<h1>異物管理対策について</h1>
+<p>音声入力チェックシートアプリ 現場導入に向けた安全対策</p>
+<div class="title-tags">
+<span>🔒 異物管理</span>
+<span>📱 iPhone対応</span>
+<span>🎧 ハンズフリー</span>
+<span>✅ 紛失対策</span>
+</div>
+</div>
 
-  .page { 
-    max-width: 800px; margin: 60px auto 0; padding: 16px;
-  }
+<div class="section-header">
+<div><span class="slide-num">SLIDE 1</span><h2>⚠️ 懸念点の整理</h2></div>
+</div>
+<div class="card">
+<div class="two-col">
+<div class="col-red">
+<div class="col-title red">❌ 上長からの指摘</div>
+<ul>
+<li>スマホの現場持ち込みによる異物管理上のリスク</li>
+<li>落下・破損の懸念</li>
+<li>紛失リスク</li>
+<li>対費用効果への疑問</li>
+</ul>
+</div>
+<div class="col-green">
+<div class="col-title green">✅ 本資料の目的</div>
+<ul>
+<li>各懸念点への具体的な対策を提示</li>
+<li>既存の持ち込み品との比較</li>
+<li>安全に運用できる根拠を示す</li>
+</ul>
+</div>
+</div>
+<div class="col-blue">
+<div class="col-title blue">📋 前提として</div>
+<p style="font-size:13px;line-height:1.6;">現時点で明確な持ち込み禁止規定は確認されていません。また別部署ではすでにiPhoneを記録媒体として運用しており、海外のお客様も現場でスマホを使用されています。</p>
+</div>
+</div>
+<div class="footer">音声入力チェックシートアプリ 異物管理対策</div>
 
-  /* タイトルページ */
-  .title-slide {
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
-    border-radius: 16px; padding: 48px 24px; text-align: center;
-    color: white; margin-bottom: 24px;
-  }
-  .title-slide .icon { font-size: 48px; margin-bottom: 16px; }
-  .title-slide h1 { font-size: 26px; font-weight: bold; margin-bottom: 8px; }
-  .title-slide p { font-size: 13px; opacity: 0.85; margin-bottom: 20px; }
-  .title-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-  .title-tags span {
-    border: 1px solid rgba(255,255,255,0.5); border-radius: 20px;
-    padding: 4px 12px; font-size: 12px;
-  }
+<div class="section-header">
+<div><span class="slide-num">SLIDE 2</span><h2>🔧 物理的な異物管理対策</h2></div>
+</div>
+<div class="card">
+<img src="https://review3hmku-afk.github.io/App/IMG_3561.png" class="illust" alt="作業員全身イラスト">
+<div class="note">※イラストはイメージです。実際の作業環境・服装とは異なります。詳細な作業内容は社外秘のためAIへの情報提供を制限しています。</div>
+<div class="two-col" style="margin-top:12px;">
+<div class="col-green">
+<div class="col-title green">✅ iPhone本体の対策</div>
+<ul>
+<li>頑丈なケースを装着</li>
+<li>完全密閉構造でバラけない</li>
+<li>ストラップで首から下げて固定</li>
+</ul>
+</div>
+<div class="col-blue">
+<div class="col-title blue">🔧 ストラップの対策</div>
+<ul>
+<li>金属接続部に熱収縮チューブを装着</li>
+<li>金属部分が露出しない状態に固定</li>
+<li>バラける部品をゼロに</li>
+</ul>
+</div>
+</div>
+<img src="https://review3hmku-afk.github.io/App/IMG_3562.png" class="illust" alt="ストラップ対策イラスト">
+</div>
+<div class="footer">音声入力チェックシートアプリ 異物管理対策</div>
 
-  /* セクションヘッダー */
-  .section-header {
-    background: linear-gradient(90deg, #1e3a8a, #2563eb);
-    color: white; border-radius: 10px; padding: 14px 18px;
-    margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
-  }
-  .section-header .slide-num {
-    font-size: 10px; opacity: 0.7; display: block;
-  }
-  .section-header h2 { font-size: 18px; font-weight: bold; }
+<div class="section-header">
+<div><span class="slide-num">SLIDE 3</span><h2>🎧 ハンズフリー運用</h2></div>
+</div>
+<div class="card">
+<img src="https://review3hmku-afk.github.io/App/IMG_3563.png" class="illust" alt="ハンズフリーイラスト">
+<div class="note">※イラストはイメージです。実際の作業環境・服装とは異なります。</div>
+<div class="two-col" style="margin-top:12px;">
+<div class="col-green">
+<div class="col-title green">✅ 首掛けイヤホンの特徴</div>
+<ul>
+<li>首にかけるため落下しにくい</li>
+<li>バラける部品がない設計</li>
+<li>ポケット不要で運用可能</li>
+<li>個人支給しやすい</li>
+</ul>
+</div>
+<div class="col-blue">
+<div class="col-title blue">📱 運用イメージ</div>
+<ul>
+<li>iPhoneを首から下げて使用</li>
+<li>音声で数値を入力</li>
+<li>復唱をイヤホンで確認</li>
+<li>両手が完全に空いた状態</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="footer">音声入力チェックシートアプリ 異物管理対策</div>
 
-  /* カード */
-  .card {
-    background: white; border-radius: 12px; padding: 16px;
-    margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  }
+<div class="section-header">
+<div><span class="slide-num">SLIDE 4</span><h2>📊 既存の持ち込み品との比較</h2></div>
+</div>
+<div class="card">
+<img src="https://review3hmku-afk.github.io/App/IMG_3564.png" class="illust" alt="メモ帳VSイラスト">
+<table style="margin-top:12px;">
+<tr><th>項目</th><th>メモ帳・ペン</th><th>iPhone</th></tr>
+<tr><td>バラける部品</td><td>ペンのキャップ等あり</td><td>✅ 完全密閉・なし</td></tr>
+<tr><td>紛失時の発見</td><td>❌ 探すしかない</td><td>✅ 音を鳴らして発見可能</td></tr>
+<tr><td>落下リスク</td><td>ストラップなし</td><td>✅ ストラップで固定</td></tr>
+<tr><td>サイズ</td><td>小さいものもある</td><td>✅ 同程度以上</td></tr>
+</table>
+<div class="alarm-box" style="margin-top:16px;">
+<div class="alarm-icon">⏰</div>
+<h3>複数アラームによる紛失防止</h3>
+<p>作業開始・中断・終了時にアラームを設定しておくことで手元にあるかどうかを定期的に確認できます。アカウント設定不要・誰でも簡単に設定可能</p>
+</div>
+</div>
+<div class="footer">音声入力チェックシートアプリ 異物管理対策</div>
 
-  /* 2カラム */
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+<div class="section-header">
+<div><span class="slide-num">SLIDE 5</span><h2>✅ まとめ</h2></div>
+</div>
+<div class="summary-box">
+<h3>🛡️ 対策済みのため安全に運用できます</h3>
+<p>懸念点に対してすべて具体的な対策を用意しています</p>
+</div>
+<div class="card">
+<table>
+<tr><th>懸念点</th><th>対策</th><th>状態</th></tr>
+<tr><td>異物混入リスク</td><td>密閉ケース＋収縮チューブで金属固定</td><td>✅ 対策済み</td></tr>
+<tr><td>落下・破損</td><td>首掛けストラップで固定</td><td>✅ 対策済み</td></tr>
+<tr><td>紛失リスク</td><td>複数アラーム＋音で発見可能</td><td>✅ 対策済み</td></tr>
+<tr><td>持ち込み規定</td><td>明確な禁止規定なし・他部署で運用実績あり</td><td>✅ 問題なし</td></tr>
+</table>
+<div class="col-green" style="margin-top:16px;">
+<div class="col-title green">🙏 お願い</div>
+<p style="font-size:13px;line-height:1.6;">上記対策をご確認いただき、現場での試験的使用についてご承認いただけますようお願い申し上げます。ご不明な点がございましたらお気軽にご相談ください。</p>
+</div>
+</div>
+<div class="footer">音声入力チェックシートアプリ 異物管理対策</div>
 
-  .col-red { background: #fff5f5; border-radius: 10px; padding: 14px; border-left: 4px solid #ef4444; }
-  .col-green { background: #f0fdf4; border-radius: 10px; padding: 14px; border-left: 4px solid #22c55e; }
-  .col-blue { background: #eff6ff; border-radius: 10px; padding: 14px; border-left: 4px solid #3b82f6; }
-  .col-yellow { background: #fefce8; border-radius: 10px; padding: 14px; border-left: 4px solid #eab308; }
-
-  .col-title { font-size: 13px; font-weight: bold; margin-bottom: 8px; }
-  .col-title.red { color: #ef4444; }
-  .col-title.green { color: #22c55e; }
-  .col-title.blue { color: #2563eb; }
-  .col-title.yellow { color: #ca8a04; }
-
-  ul { padding-left: 16px; }
-  li { font-size: 13px; margin-bottom: 4px; line-height: 1.6; }
-
-  /* イラスト */
-  .illust { width: 100%; border-radius: 10px; margin: 12px 0; object-fit: cover; }
-  .illust-half { width: 100%; border-radius: 10px; object-fit: cover; }
-
-  /* 注意書き */
-  .note {
-    background: #fef9c3; border-left: 4px solid #eab308;
-    border-radius: 8px; padding: 12px 14px; font-size: 12px;
-    color: #713f12; margin: 12px 0; line-height: 1.6;
-  }
-
-  /* テーブル */
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { background: #1e3a8a; color: white; padding: 8px; text-align: left; }
-  td { padding: 8px; border-bottom: 1px solid #e5e7eb; }
-  tr:nth-child(even) { background: #f8fafc; }
-
-  /* まとめボックス */
-  .summary-box {
-    background: linear-gradient(135deg, #1e3a8a, #2563eb);
-    color: white; border-radius: 12px; padding: 20px; margin-bottom: 16px;
-    text-align: center;
-  }
-  .summary-box h3 { font-size: 16px; margin-bottom: 8px; }
-  .summary-box p { font-size: 13px; opacity: 0.9; line-height: 1.6; }
-
-  /* フッター */
-  .footer {
-    text-align: right; font-size: 10px; color: #9ca3af;
-    padding: 8px 0 24px; 
+</div>
+</body>
+</html>
