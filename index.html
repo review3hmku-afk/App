@@ -108,7 +108,6 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
   <div class="tb" id="tab2" onclick="switchTab(2)">💾 保存</div>
   <div class="tb" id="tab3" onclick="switchTab(3)">⚙️ 設定</div>
 </div>
-
 <div class="sc on" id="sc0">
   <button class="vbtn off" id="vBtn" onclick="togV()">🎙️ 音声入力 開始</button>
   <div class="csb">
@@ -132,16 +131,13 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
   <button class="bt x" onclick="doCSV()">📥 CSV出力</button>
   <div class="dbg" id="dbgLog">デバッグログ</div>
 </div>
-
 <div class="sc" id="sc1">
   <div class="dtw"><table class="dt" id="dtbl"></table></div>
   <button class="bt p" onclick="if(confirm('このデータを全削除？')){initD();svData();updAll();renderTbl();showSt('🗑 全データ削除');}">🗑️ データ全削除</button>
 </div>
-
 <div class="sc" id="sc2">
   <div id="slotList"></div>
 </div>
-
 <div class="sc" id="sc3">
   <div class="sg">
     <h3>⚙️ 基本設定</h3>
@@ -162,7 +158,6 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
     <button class="bt r" onclick="if(confirm('全データ初期化？')){localStorage.clear();location.reload();}">全データ初期化</button>
   </div>
 </div>
-
 <div class="mo" id="modal" onclick="modalOutside(event)">
   <div class="md">
     <h3 id="mdTitle">手動入力</h3>
@@ -175,18 +170,11 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
   </div>
 </div>
 <div class="sm" id="stMsg"></div>
-
 <script>
 var C={mc:'デフォルト',ts:72,np:3,pp:[5,13,19]};
 var D=[],cp=0,listening=false,rec=null,es=1,stT=null,mSlot=null,mPt=null;
-var isSpeaking=false;
-var spkQueue=[];
-var iosUnlocked=false;
-
 function log(m){var el=document.getElementById('dbgLog');el.textContent=m+'\n'+el.textContent;if(el.textContent.length>500)el.textContent=el.textContent.slice(0,500);}
-
 function initD(){D=[];for(var i=0;i<C.np;i++)D.push({});}
-
 function updAll(){
 var pp=C.pp[cp]||'-';
 document.getElementById('hdPi').textContent=(cp+1)+'点目（'+pp+'枚目）';
@@ -198,9 +186,7 @@ document.getElementById('pbTxt').textContent=f+' / '+t;
 document.getElementById('pbF').style.width=(t>0?Math.round(f/t*100):0)+'%';
 renderGrid();
 }
-
 function cntF(){var c=0;for(var k in D[cp])if(D[cp][k]!==undefined&&D[cp][k]!==null)c++;return c;}
-
 function renderGrid(){
 var g=document.getElementById('grid'),h='';
 for(var i=1;i<=C.ts;i++){
@@ -211,66 +197,7 @@ h+='<div class="'+cls+'" onclick="openMd('+i+','+cp+');es='+i+';renderGrid();">'
 }
 g.innerHTML=h;
 }
-
-// ========== iOS音声アンロック ==========
-function unlockAudio(){
-if(iosUnlocked)return;
-try{
-window.speechSynthesis.cancel();
-var u=new SpeechSynthesisUtterance('');
-u.volume=0;
-window.speechSynthesis.speak(u);
-iosUnlocked=true;
-log('音声アンロック完了');
-}catch(x){log('アンロック失敗:'+x.message);}
-}
-
-// ========== 音声合成（修正版）==========
-function spk(t){
-if(!window.speechSynthesis)return;
-// 数字をスペースで区切ってAndroid対策
-var formatted=t.replace(/(\d+)/g,function(m){return ' '+m+' ';}).replace(/\s+/g,' ').trim();
-spkQueue.push(formatted);
-if(!isSpeaking)processSpkQueue();
-}
-
-function processSpkQueue(){
-if(spkQueue.length===0){isSpeaking=false;return;}
-if(isSpeaking)return;
-isSpeaking=true;
-var t=spkQueue.shift();
-try{
-window.speechSynthesis.cancel();
-setTimeout(function(){
-try{
-var u=new SpeechSynthesisUtterance(t);
-u.lang='ja-JP';u.rate=1.1;u.volume=1;
-u.onend=function(){
-isSpeaking=false;
-setTimeout(function(){processSpkQueue();},200);
-};
-u.onerror=function(e){
-log('spk error:'+e.error);
-isSpeaking=false;
-setTimeout(function(){processSpkQueue();},200);
-};
-window.speechSynthesis.speak(u);
-}catch(x){
-log('spk err:'+x.message);
-isSpeaking=false;
-setTimeout(function(){processSpkQueue();},200);
-}
-},100);
-}catch(x){
-log('spk cancel err:'+x.message);
-isSpeaking=false;
-setTimeout(function(){processSpkQueue();},200);
-}
-}
-
-// ========== 音声認識 ==========
 function togV(){
-unlockAudio();
 if(!listening){
 listening=true;
 document.getElementById('vBtn').className='vbtn rec';
@@ -286,22 +213,16 @@ document.getElementById('vBtn').textContent='🎙️ 音声入力 開始';
 log('停止');
 }
 }
-
 function doStart(){
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR||!listening)return;
-// TTSが喋っている間は認識を待機
-if(isSpeaking){
-setTimeout(function(){if(listening)doStart();},500);
-return;
-}
 try{
 rec=new SR();
 rec.lang='ja-JP';
 rec.continuous=false;
 rec.interimResults=false;
 rec.maxAlternatives=1;
-rec.onstart=function(){log('認識開始');};
+rec.onstart=function(){log('再開OK');};
 rec.onresult=function(e){
 if(e.results.length>0&&e.results[0].isFinal){
 var t=e.results[0][0].transcript.trim();
@@ -310,29 +231,23 @@ procVoice(t);
 }
 };
 rec.onerror=function(e){
-log('エラー: '+e.error);
-if(e.error==='not-allowed'){listening=false;
-document.getElementById('vBtn').className='vbtn off';
-document.getElementById('vBtn').textContent='🎙️ 音声入力 開始';
-return;}
-if(listening&&!isSpeaking){setTimeout(function(){if(listening)doStart();},500);}
+log('再開エラー: '+e.error);
+if(e.error==='not-allowed'){listening=false;return;}
+if(listening){setTimeout(function(){if(listening)doStart();},500);}
 };
 rec.onend=function(){
-if(listening&&!isSpeaking){setTimeout(function(){if(listening)doStart();},300);}
+if(listening){setTimeout(function(){if(listening)doStart();},300);}
 };
 rec.start();
 }catch(ex){
-log('例外: '+ex.message);
+log('再開例外: '+ex.message);
 if(listening){setTimeout(function(){if(listening)doStart();},1000);}
 }
 }
-
-// ========== 音声処理 ==========
 function k2n(s){
 var m={'零':0,'〇':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'１':'1','２':'2','３':'3','４':'4','５':'5','６':'6','７':'7','８':'8','９':'9','０':'0'};
 var r=s;for(var k in m)r=r.split(k).join(String(m[k]));return r;
 }
-
 function procVoice(text){
 document.getElementById('lrRaw').textContent='認識:「'+text+'」';
 var n=k2n(text).replace(/[、。！？\s]+/g,' ').trim();
@@ -366,14 +281,11 @@ if(sn){recVal(es,parseInt(sn[1]),false);return;}
 setResult('❌ 認識できません','ng');
 spk('認識できませんでした');
 }
-
 function recVal(slot,val,corr){
 D[cp][slot]=val;
 var act=corr?'訂正':'記録';
 setResult('No.'+slot+' → '+val,'ok');
-// 音声認識を一旦停止してからTTSを再生
-if(rec){try{rec.stop();}catch(x){}}
-spk('ナンバー '+slot+' '+val+' を'+act+'しました');
+spk('ナンバー'+slot+' '+val+'を'+act+'しました');
 svData();updAll();
 if(cntF()>=C.ts){
 if(cp<C.np-1){
@@ -385,14 +297,21 @@ showSt('🎉 全測定完了！');
 }
 }
 }
-
 function setResult(txt,cls){
 var el=document.getElementById('lrVal');
 el.textContent=txt;
 el.className='v'+(cls?' '+cls:'');
 if(cls)setTimeout(function(){el.className='v';},3000);
 }
-
+function spk(t){
+if(!window.speechSynthesis)return;
+try{
+window.speechSynthesis.cancel();
+var u=new SpeechSynthesisUtterance(t);
+u.lang='ja-JP';u.rate=1.1;u.volume=1;
+window.speechSynthesis.speak(u);
+}catch(x){log('spk err:'+x.message);}
+}
 function nextPt(){
 if(cp<C.np-1){
 cp++;updAll();svData();
@@ -400,7 +319,6 @@ showSt('➡️ '+(cp+1)+'点目（'+C.pp[cp]+'枚目）');
 spk((cp+1)+'点目、'+C.pp[cp]+'枚目に移ります');
 }else{showSt('⚠️ 最後の測定点です');spk('最後の測定点です');}
 }
-
 function prevPt(){
 if(cp>0){
 cp--;updAll();svData();
@@ -408,7 +326,6 @@ showSt('⬅️ '+(cp+1)+'点目（'+C.pp[cp]+'枚目）');
 spk((cp+1)+'点目に戻ります');
 }else{showSt('⚠️ 最初の測定点です');}
 }
-
 function openMd(slot,pt){
 mSlot=slot;mPt=pt;
 document.getElementById('mdTitle').textContent='No.'+slot+'（'+C.pp[pt]+'枚目）';
@@ -441,7 +358,6 @@ showSt('🗑 No.'+mSlot+'を削除');
 }
 mdClose();
 }
-
 function switchTab(n){
 for(var i=0;i<4;i++){
 document.getElementById('sc'+i).classList.remove('on');
@@ -452,7 +368,6 @@ document.getElementById('tab'+n).classList.add('on');
 if(n===1)renderTbl();
 if(n===2)renderSlots();
 }
-
 function renderTbl(){
 var t=document.getElementById('dtbl');
 var h='<thead><tr><th>No.</th>';
@@ -476,7 +391,6 @@ openMd(parseInt(this.getAttribute('data-s')),parseInt(this.getAttribute('data-p'
 });
 }
 }
-
 function renderSlots(){
 var h='';
 for(var i=1;i<=5;i++){
@@ -486,7 +400,7 @@ if(sd){
 try{
 var obj=JSON.parse(sd);
 var prog=0,total=0;
-for(var p=0;p<obj.C.np;p++){for(var k in obj.D[p])prog++; total+=obj.C.ts;}
+for(var p=0;p<obj.C.np;p++){for(var k in obj.D[p])prog++;total+=obj.C.ts;}
 h+='<div class="slot-card used">';
 h+='<div class="slot-title">スロット '+i+'</div>';
 h+='<div class="slot-info"><span class="mc">'+obj.C.mc+'</span><br>';
@@ -502,17 +416,14 @@ h+='</div></div>';
 }
 document.getElementById('slotList').innerHTML=h;
 }
-
 function emptySlot(i){
 return '<div class="slot-card empty"><div class="slot-title">スロット '+i+'</div><div class="slot-info" style="color:#555;">空のスロット</div><div class="slot-btns"><button class="bt save2" onclick="svSlot('+i+')">💾 保存</button></div></div>';
 }
-
 function svSlot(i){
 var obj={C:JSON.parse(JSON.stringify(C)),D:JSON.parse(JSON.stringify(D)),cp:cp,saved:new Date().toLocaleString('ja-JP')};
 localStorage.setItem('wslot'+i,JSON.stringify(obj));
 renderSlots();showSt('💾 スロット'+i+'に保存');
 }
-
 function ldSlot(i){
 if(!confirm('スロット'+i+'をロードしますか？'))return;
 var sd=localStorage.getItem('wslot'+i);
@@ -528,13 +439,11 @@ showSt('📂 スロット'+i+'をロード');
 switchTab(0);
 }catch(x){showSt('❌ ロード失敗');}
 }
-
 function delSlot(i){
 if(!confirm('スロット'+i+'を削除？'))return;
 localStorage.removeItem('wslot'+i);
 renderSlots();showSt('🗑 スロット'+i+'削除');
 }
-
 function buildPtUI(){
 var c=document.getElementById('ptSet'),np=parseInt(document.getElementById('inPt').value)||3,h='';
 for(var i=0;i<np;i++){
@@ -543,7 +452,6 @@ h+='<div class="sr"><label>'+(i+1)+'点目</label><input type="number" class="pp
 }
 c.innerHTML=h;
 }
-
 function doApply(){
 if(!confirm('設定を適用してデータ初期化しますか？'))return;
 C.mc=document.getElementById('inMc').value||'デフォルト';
@@ -555,7 +463,6 @@ initD();updAll();buildPtUI();svCfg();svData();
 switchTab(0);
 spk('設定を適用しました');showSt('✅ 設定適用');
 }
-
 function doSavePreset(){
 var nm=C.mc;
 if(!nm||nm==='デフォルト'){nm=prompt('プリセット名',C.mc);if(!nm)return;}
@@ -587,7 +494,6 @@ h+='<button class="bt bd" onclick="delPr(\''+n.replace(/'/g,"\\'")+'\')">🗑</b
 }
 c.innerHTML=h;
 }
-
 function doCSV(){
 var h='No.';
 for(var p=0;p<C.np;p++)h+=','+C.pp[p]+'枚目';
@@ -606,7 +512,6 @@ document.body.appendChild(a);a.click();
 document.body.removeChild(a);URL.revokeObjectURL(url);
 showSt('📥 CSV出力完了');
 }
-
 function svData(){try{localStorage.setItem('wd',JSON.stringify(D));localStorage.setItem('wcp',String(cp));localStorage.setItem('wc',JSON.stringify(C));}catch(x){}}
 function svCfg(){try{localStorage.setItem('wc',JSON.stringify(C));}catch(x){}}
 function ldSaved(){
@@ -621,12 +526,10 @@ var sp=localStorage.getItem('wcp');
 if(sp!==null){cp=parseInt(sp);if(cp>=C.np)cp=0;}
 }catch(x){initD();}
 }
-
 function showSt(m){
 var el=document.getElementById('stMsg');el.textContent=m;el.classList.add('sh');
 if(stT)clearTimeout(stT);stT=setTimeout(function(){el.classList.remove('sh');},3000);
 }
-
 window.onload=function(){ldSaved();updAll();buildPtUI();renderPr();};
 </script>
 </body>
