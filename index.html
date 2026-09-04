@@ -81,8 +81,6 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 .pi2 .bd{background:#c62828;color:#fff;}
 .dbg{background:#0d0d1a;border:1px solid #333;border-radius:8px;padding:8px;margin-bottom:10px;font-size:10px;color:#666;max-height:80px;overflow-y:auto;word-break:break-all;}
 .divider{border:none;border-top:1px solid #333;margin:12px 0;}
-
-/* セーブスロット */
 .slot-card{background:#16213e;border:2px solid #333;border-radius:12px;padding:14px;margin-bottom:10px;position:relative;}
 .slot-card.used{border-color:#0a6640;}
 .slot-card.empty{border-color:#333;opacity:0.7;}
@@ -99,415 +97,211 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 </style>
 </head>
 <body>
-
 <div class="hd">
-<h1>📋 点検記録</h1>
-<div class="pi" id="pointInfo">1点目 / 3点中（5枚目）</div>
-<div class="mi" id="machineInfo">機種: デフォルト</div>
+  <h1>📋 点検記録</h1>
+  <div class="pi" id="hdPi">-</div>
+  <div class="mi" id="hdMi">設定タブで機種名を入力してください</div>
 </div>
-
 <div class="tabs">
-<div class="tb on" id="tab0" onclick="switchTab(0)">📏 測定</div>
-<div class="tb" id="tab1" onclick="switchTab(1)">📋 確認</div>
-<div class="tb" id="tab2" onclick="switchTab(2)">💾 保存</div>
-<div class="tb" id="tab3" onclick="switchTab(3)">⚙️ 設定</div>
+  <div class="tb on" id="tab0" onclick="switchTab(0)">🎙️ 入力</div>
+  <div class="tb" id="tab1" onclick="switchTab(1)">📊 一覧</div>
+  <div class="tb" id="tab2" onclick="switchTab(2)">💾 保存</div>
+  <div class="tb" id="tab3" onclick="switchTab(3)">⚙️ 設定</div>
 </div>
 
 <div class="sc on" id="sc0">
-<button class="vbtn off" id="vbtn" type="button">🎤 音声入力開始</button>
-<div class="dbg" id="dbg">ログ...</div>
-<div class="vh">
-<b>発話例:</b><br>
-「ナンバー1 52」→ No.1に52を記録<br>
-「1番 52」→ No.1に52を記録<br>
-「52」→ 現在のNo.に52を記録<br>
-「訂正 ナンバー1 53」→ No.1を53に修正<br>
-「次」→ 次の測定点へ
-</div>
-<div class="csb">
-<div style="font-size:12px;color:#88ccff;">次に測定するNo.</div>
-<div class="n" id="csNum">1</div>
-<div class="s" id="csSub">残り72箇所</div>
-</div>
-<div class="lr">
-<div class="l">最新の認識結果</div>
-<div class="v" id="lrVal">---</div>
-<div class="r" id="lrRaw"></div>
-</div>
-<div class="pb">
-<span id="prTxt">測定済み: 0 / 72</span>
-<div class="pbr"><div class="pbf" id="prFill" style="width:0%"></div></div>
-</div>
-<div class="gr" id="grid"></div>
-<div class="nb">
-<button class="bt s" type="button" onclick="prevPt()">⬅️ 前の点</button>
-<button class="bt n" type="button" onclick="nextPt()">次の点 ➡️</button>
-</div>
+  <button class="vbtn off" id="vBtn" onclick="togV()">🎙️ 音声入力 開始</button>
+  <div class="csb">
+    <div class="n" id="curPt">-</div>
+    <div class="s" id="curPtS">測定点</div>
+  </div>
+  <div class="lr">
+    <div class="l">認識結果</div>
+    <div class="v" id="lrVal">待機中...</div>
+    <div class="r" id="lrRaw"></div>
+  </div>
+  <div class="pb">
+    <span id="pbTxt">0 / 0</span>
+    <div class="pbr"><div class="pbf" id="pbF" style="width:0%"></div></div>
+  </div>
+  <div class="gr" id="grid"></div>
+  <div class="nb">
+    <button class="bt s" onclick="prevPt()">⬅️ 前の点</button>
+    <button class="bt n" onclick="nextPt()">次の点 ➡️</button>
+  </div>
+  <button class="bt x" onclick="doCSV()">📥 CSV出力</button>
+  <div class="dbg" id="dbgLog">デバッグログ</div>
 </div>
 
 <div class="sc" id="sc1">
-<h3 style="color:#e94560;margin-bottom:8px;">📋 全データ一覧</h3>
-<p style="font-size:11px;color:#888;margin-bottom:10px;">セルをタップで修正</p>
-<div class="dtw"><table class="dt" id="dtbl"></table></div>
-<hr class="divider">
-<button class="bt x" type="button" onclick="doExportCSV()">📄 CSV形式で保存</button>
+  <div class="dtw"><table class="dt" id="dtbl"></table></div>
+  <button class="bt p" onclick="if(confirm('このデータを全削除？')){initD();svData();updAll();renderTbl();showSt('🗑 全データ削除');}">🗑️ データ全削除</button>
 </div>
 
 <div class="sc" id="sc2">
-<h3 style="color:#e94560;margin-bottom:4px;">💾 セーブ・ロード</h3>
-<p style="font-size:11px;color:#888;margin-bottom:12px;">スロットをタップしてロード、または上書き保存</p>
-<div id="slotList"></div>
+  <div id="slotList"></div>
 </div>
 
 <div class="sc" id="sc3">
-<div class="sg">
-<h3>📐 基本設定</h3>
-<div class="sr"><label>機種名</label><input type="text" id="inMc" value="デフォルト" class="w"></div>
-<div class="sr"><label>測定箇所数</label><input type="number" id="inSl" value="72" min="1" max="200"></div>
-<div class="sr"><label>測定点数</label><input type="number" id="inPt" value="3" min="1" max="10" onchange="buildPtUI()"></div>
-</div>
-<div class="sg">
-<h3>📍 各測定点の位置（枚目）</h3>
-<div id="ptSet"></div>
-</div>
-<button class="bt p" type="button" onclick="doApply()">✅ 設定を適用して新規開始</button>
-<hr class="divider">
-<div class="sg">
-<h3>🗑 データリセット</h3>
-<p style="font-size:12px;color:#888;margin-bottom:12px;">測定点ごとにリセット：</p>
-<div id="resetButtons"></div>
-<hr class="divider">
-<button class="bt r" type="button" onclick="resetAll()">⚠️ 全データを一括リセット</button>
-</div>
-<div class="sg" style="margin-top:14px;">
-<h3>💾 プリセット（設定のみ保存）</h3>
-<button class="bt s" style="width:100%;" type="button" onclick="doSavePreset()">現在の設定を保存</button>
-<div id="prList" style="margin-top:10px;"></div>
-</div>
+  <div class="sg">
+    <h3>⚙️ 基本設定</h3>
+    <div class="sr"><label>機種名</label><input type="text" id="inMc" class="w" value="デフォルト"></div>
+    <div class="sr"><label>No.総数</label><input type="number" id="inSl" value="72" min="1" max="200"></div>
+    <div class="sr"><label>測定点数</label><input type="number" id="inPt" value="3" min="1" max="10" onchange="buildPtUI()"></div>
+    <div id="ptSet"></div>
+    <button class="bt p" onclick="doApply()">✅ 適用（データ初期化）</button>
+  </div>
+  <div class="sg">
+    <h3>💾 プリセット</h3>
+    <button class="bt g" onclick="doSavePreset()">💾 現在の設定を保存</button>
+    <div id="prList" style="margin-top:10px;"></div>
+  </div>
+  <div class="sg">
+    <h3>🗑️ リセット</h3>
+    <button class="bt r" onclick="if(confirm('測定データを全削除？')){initD();svData();updAll();showSt('🗑 データ削除');}">測定データ削除</button>
+    <button class="bt r" onclick="if(confirm('全データ初期化？')){localStorage.clear();location.reload();}">全データ初期化</button>
+  </div>
 </div>
 
 <div class="mo" id="modal" onclick="modalOutside(event)">
-<div class="md">
-<h3 id="mdTitle">No.1</h3>
-<input type="number" id="mdIn" inputmode="numeric" pattern="[0-9]*" placeholder="数値">
-<div class="mb">
-<button class="bt ca" type="button" onclick="mdClose()">取消</button>
-<button class="bt sv" type="button" onclick="mdSave()">保存</button>
+  <div class="md">
+    <h3 id="mdTitle">手動入力</h3>
+    <input type="number" id="mdIn" placeholder="値を入力">
+    <div class="mb">
+      <button class="bt ca" onclick="mdClose()">キャンセル</button>
+      <button class="bt sv" onclick="mdSave()">保存</button>
+    </div>
+    <button class="bt dl" onclick="mdDel()">🗑️ この値を削除</button>
+  </div>
 </div>
-<button class="bt dl" type="button" onclick="mdDel()">🗑 削除</button>
-</div>
-</div>
-
 <div class="sm" id="stMsg"></div>
 
 <script>
 var C={mc:'デフォルト',ts:72,np:3,pp:[5,13,19]};
-var cp=0,es=1,D={},listening=false,rec=null,mSlot=null,mPt=null,stT=null;
-var logEl;
-var NUM_SLOTS=5;
+var D=[],cp=0,listening=false,rec=null,es=1,stT=null,mSlot=null,mPt=null;
+var isSpeaking=false;
+var spkQueue=[];
+var iosUnlocked=false;
 
-function log(s){
-if(!logEl)logEl=document.getElementById('dbg');
-var t=new Date().toLocaleTimeString();
-logEl.textContent=t+': '+s+'\n'+logEl.textContent.substring(0,500);
+function log(m){var el=document.getElementById('dbgLog');el.textContent=m+'\n'+el.textContent;if(el.textContent.length>500)el.textContent=el.textContent.slice(0,500);}
+
+function initD(){D=[];for(var i=0;i<C.np;i++)D.push({});}
+
+function updAll(){
+var pp=C.pp[cp]||'-';
+document.getElementById('hdPi').textContent=(cp+1)+'点目（'+pp+'枚目）';
+document.getElementById('hdMi').textContent=C.mc;
+document.getElementById('curPt').textContent=(cp+1)+'点目';
+document.getElementById('curPtS').textContent=pp+'枚目';
+var f=cntF(),t=C.ts;
+document.getElementById('pbTxt').textContent=f+' / '+t;
+document.getElementById('pbF').style.width=(t>0?Math.round(f/t*100):0)+'%';
+renderGrid();
 }
 
-function initD(){
-D={};
-for(var i=0;i<C.np;i++)D[i]={};
-cp=0;es=1;
-}
+function cntF(){var c=0;for(var k in D[cp])if(D[cp][k]!==undefined&&D[cp][k]!==null)c++;return c;}
 
-function updAll(){updHdr();updGrid();updProg();updES();buildResetButtons();}
-
-function updHdr(){
-document.getElementById('machineInfo').textContent='機種: '+C.mc;
-var pos=C.pp[cp]||'?';
-document.getElementById('pointInfo').textContent=(cp+1)+'点目 / '+C.np+'点中（'+pos+'枚目）';
-}
-
-function updES(){
-var n=1;
+function renderGrid(){
+var g=document.getElementById('grid'),h='';
 for(var i=1;i<=C.ts;i++){
-if(D[cp][i]===undefined||D[cp][i]===null){n=i;break;}
-if(i===C.ts)n=C.ts;
+var v=D[cp][i],hv=v!==undefined&&v!==null;
+var cls=hv?'gc f':'gc e';
+if(i===es)cls='gc c';
+h+='<div class="'+cls+'" onclick="openMd('+i+','+cp+');es='+i+';renderGrid();">'+i+(hv?'<div class="cv">'+v+'</div>':'')+'</div>';
 }
-es=n;
-document.getElementById('csNum').textContent=n;
-var rem=0;
-for(var j=1;j<=C.ts;j++){
-if(D[cp][j]===undefined||D[cp][j]===null)rem++;
-}
-document.getElementById('csSub').textContent='残り'+rem+'箇所';
+g.innerHTML=h;
 }
 
-function cntF(){
-var c=0;
-for(var i=1;i<=C.ts;i++){
-if(D[cp][i]!==undefined&&D[cp][i]!==null)c++;
-}
-return c;
-}
-
-function cntFAll(){
-var c=0;
-for(var p=0;p<C.np;p++){
-for(var i=1;i<=C.ts;i++){
-if(D[p][i]!==undefined&&D[p][i]!==null)c++;
-}
-}
-return c;
+// ========== iOS音声アンロック ==========
+function unlockAudio(){
+if(iosUnlocked)return;
+try{
+window.speechSynthesis.cancel();
+var u=new SpeechSynthesisUtterance('');
+u.volume=0;
+window.speechSynthesis.speak(u);
+iosUnlocked=true;
+log('音声アンロック完了');
+}catch(x){log('アンロック失敗:'+x.message);}
 }
 
-function updGrid(){
-var g=document.getElementById('grid');
-g.innerHTML='';
-for(var i=1;i<=C.ts;i++){
-var d=document.createElement('div');
-var v=D[cp][i];
-var hv=v!==undefined&&v!==null;
-d.className='gc '+(i===es?'c':hv?'f':'e');
-d.innerHTML=i+(hv?'<span class="cv">'+v+'</span>':'');
-(function(slot){d.onclick=function(){openMd(slot,cp);};})(i);
-g.appendChild(d);
-}
+// ========== 音声合成（修正版）==========
+function spk(t){
+if(!window.speechSynthesis)return;
+// 数字をスペースで区切ってAndroid対策
+var formatted=t.replace(/(\d+)/g,function(m){return ' '+m+' ';}).replace(/\s+/g,' ').trim();
+spkQueue.push(formatted);
+if(!isSpeaking)processSpkQueue();
 }
 
-function updProg(){
-var f=cntF(),pct=Math.round(f/C.ts*100);
-document.getElementById('prTxt').textContent='測定済み: '+f+' / '+C.ts;
-document.getElementById('prFill').style.width=pct+'%';
-}
-
-// ========== セーブ・ロード ==========
-function getSaves(){
-var s=localStorage.getItem('saves');
-if(!s){
-var arr=[];
-for(var i=0;i<NUM_SLOTS;i++)arr.push(null);
-return arr;
-}
-return JSON.parse(s);
-}
-
-function putSaves(arr){
-localStorage.setItem('saves',JSON.stringify(arr));
-}
-
-function saveToSlot(idx){
-var saves=getSaves();
-var existing=saves[idx];
-var msg=existing?
-'スロット'+(idx+1)+'に上書き保存しますか？\n（'+existing.mc+' '+existing.savedAt+'）':
-'スロット'+(idx+1)+'に保存しますか？';
-if(!confirm(msg))return;
-
-var totalF=cntFAll();
-var totalAll=C.ts*C.np;
-saves[idx]={
-mc:C.mc,
-savedAt:new Date().toLocaleString('ja-JP'),
-progress:totalF+'/'+totalAll,
-config:JSON.parse(JSON.stringify(C)),
-currentPoint:cp,
-data:JSON.parse(JSON.stringify(D))
+function processSpkQueue(){
+if(spkQueue.length===0){isSpeaking=false;return;}
+if(isSpeaking)return;
+isSpeaking=true;
+var t=spkQueue.shift();
+try{
+window.speechSynthesis.cancel();
+setTimeout(function(){
+try{
+var u=new SpeechSynthesisUtterance(t);
+u.lang='ja-JP';u.rate=1.1;u.volume=1;
+u.onend=function(){
+isSpeaking=false;
+setTimeout(function(){processSpkQueue();},200);
 };
-putSaves(saves);
-renderSlots();
-showSt('💾 スロット'+(idx+1)+'に保存しました');
-spk('スロット'+(idx+1)+'に保存しました');
+u.onerror=function(e){
+log('spk error:'+e.error);
+isSpeaking=false;
+setTimeout(function(){processSpkQueue();},200);
+};
+window.speechSynthesis.speak(u);
+}catch(x){
+log('spk err:'+x.message);
+isSpeaking=false;
+setTimeout(function(){processSpkQueue();},200);
 }
-
-function loadFromSlot(idx){
-var saves=getSaves();
-var sv=saves[idx];
-if(!sv){showSt('このスロットは空です');return;}
-if(!confirm('スロット'+(idx+1)+'のデータをロードしますか？\n（'+sv.mc+' '+sv.savedAt+'）\n現在のデータは上書きされます。'))return;
-
-C=JSON.parse(JSON.stringify(sv.config));
-D={};
-for(var p=0;p<C.np;p++){
-D[p]=sv.data[p]?JSON.parse(JSON.stringify(sv.data[p])):{};
+},100);
+}catch(x){
+log('spk cancel err:'+x.message);
+isSpeaking=false;
+setTimeout(function(){processSpkQueue();},200);
 }
-cp=sv.currentPoint||0;
-if(cp>=C.np)cp=0;
-
-document.getElementById('inMc').value=C.mc;
-document.getElementById('inSl').value=C.ts;
-document.getElementById('inPt').value=C.np;
-
-svData();updAll();buildPtUI();renderSlots();
-switchTab(0);
-showSt('📂 スロット'+(idx+1)+'をロードしました：'+C.mc);
-spk('ロードしました。'+C.mc);
-}
-
-function deleteSlot(idx){
-var saves=getSaves();
-if(!saves[idx]){return;}
-if(!confirm('スロット'+(idx+1)+'のデータを削除しますか？'))return;
-saves[idx]=null;
-putSaves(saves);
-renderSlots();
-showSt('🗑 スロット'+(idx+1)+'を削除しました');
-}
-
-function renderSlots(){
-var saves=getSaves();
-var c=document.getElementById('slotList');
-var h='';
-for(var i=0;i<NUM_SLOTS;i++){
-var sv=saves[i];
-if(sv){
-var pct=sv.progress;
-h+='<div class="slot-card used">';
-h+='<div class="slot-title">💾 スロット'+(i+1)+'</div>';
-h+='<div class="slot-info">';
-h+='<div class="mc">'+sv.mc+'</div>';
-h+='<div class="prog">進捗: '+pct+'</div>';
-h+='<div class="dt2">保存日時: '+sv.savedAt+'</div>';
-h+='</div>';
-h+='<div class="slot-btns">';
-h+='<button class="bt load" onclick="loadFromSlot('+i+')">📂 ロード</button>';
-h+='<button class="bt save2" onclick="saveToSlot('+i+')">💾 上書き</button>';
-h+='<button class="bt del2" onclick="deleteSlot('+i+')">🗑</button>';
-h+='</div>';
-h+='</div>';
-}else{
-h+='<div class="slot-card empty">';
-h+='<div class="slot-title">📭 スロット'+(i+1)+'（空き）</div>';
-h+='<div class="slot-info" style="color:#555;font-size:12px;">データなし</div>';
-h+='<div class="slot-btns">';
-h+='<button class="bt save2" style="flex:1;" onclick="saveToSlot('+i+')">💾 ここに保存</button>';
-h+='</div>';
-h+='</div>';
-}
-}
-c.innerHTML=h;
-}
-
-// ========== リセット ==========
-function buildResetButtons(){
-var c=document.getElementById('resetButtons');
-if(!c)return;
-var h='';
-for(var i=0;i<C.np;i++){
-h+='<button class="bt pu" type="button" onclick="resetPoint('+i+')">🗑 '+(i+1)+'点目（'+C.pp[i]+'枚目）をリセット</button>';
-}
-c.innerHTML=h;
-}
-
-function resetPoint(pt){
-if(!confirm((pt+1)+'点目（'+C.pp[pt]+'枚目）のデータをリセットしますか？')){return;}
-D[pt]={};
-svData();updAll();
-if(document.getElementById('sc1').classList.contains('on'))renderTbl();
-showSt('🗑 '+(pt+1)+'点目をリセットしました');
-spk((pt+1)+'点目をリセットしました');
-}
-
-function resetAll(){
-if(!confirm('全ての測定データをリセットしますか？\nこの操作は元に戻せません。')){return;}
-for(var i=0;i<C.np;i++)D[i]={};
-cp=0;es=1;
-svData();updAll();
-if(document.getElementById('sc1').classList.contains('on'))renderTbl();
-showSt('🗑 全データをリセットしました');
-spk('全データをリセットしました');
-}
-
-// ========== CSV出力 ==========
-function doExportCSV(){
-var ls=['機種,'+C.mc,'日付,'+new Date().toLocaleString('ja-JP'),''];
-var hd='No.';
-for(var p=0;p<C.np;p++)hd+=','+C.pp[p]+'枚目';
-ls.push(hd);
-for(var i=1;i<=C.ts;i++){
-var r=''+i;
-for(var p2=0;p2<C.np;p2++){var v=D[p2][i];r+=','+(v!==undefined&&v!==null?v:'');}
-ls.push(r);
-}
-var blob=new Blob(['\uFEFF'+ls.join('\n')],{type:'text/csv;charset=utf-8;'});
-var url=URL.createObjectURL(blob);
-var a=document.createElement('a');a.href=url;
-a.download='check_'+C.mc+'_'+new Date().toISOString().slice(0,10)+'.csv';
-document.body.appendChild(a);a.click();document.body.removeChild(a);
-URL.revokeObjectURL(url);
-showSt('📄 CSVを保存しました');
 }
 
 // ========== 音声認識 ==========
-document.getElementById('vbtn').addEventListener('click',function(e){
-e.preventDefault();
-log('ボタンタップ');
-if(listening){
-listening=false;
-if(rec){try{rec.abort();}catch(x){}}
-rec=null;
-this.className='vbtn off';
-this.textContent='🎤 音声入力開始';
-log('停止');
-showSt('音声認識を停止しました');
-return;
-}
-var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(!SR){alert('このブラウザは音声認識に対応していません');log('SR未対応');return;}
+function togV(){
+unlockAudio();
+if(!listening){
 listening=true;
-this.className='vbtn rec';
-this.textContent='🔴 認識中... タップで停止';
-try{
-rec=new SR();
-rec.lang='ja-JP';
-rec.continuous=false;
-rec.interimResults=false;
-rec.maxAlternatives=1;
-rec.onstart=function(){log('認識開始OK');};
-rec.onaudiostart=function(){log('音声検出開始');};
-rec.onresult=function(e){
-if(e.results.length>0&&e.results[0].isFinal){
-var t=e.results[0][0].transcript.trim();
-log('認識結果: '+t);
-procVoice(t);
-}
-};
-rec.onerror=function(e){
-log('エラー: '+e.error);
-if(e.error==='not-allowed'){
-alert('マイクが許可されていません。\nSafariの設定でマイクを許可してください。');
+document.getElementById('vBtn').className='vbtn rec';
+document.getElementById('vBtn').textContent='🔴 録音中... タップで停止';
+doStart();
+log('開始');
+}else{
 listening=false;
-var b=document.getElementById('vbtn');
-b.className='vbtn off';
-b.textContent='🎤 音声入力開始';
-return;
+if(rec){try{rec.stop();}catch(x){}}
+rec=null;
+document.getElementById('vBtn').className='vbtn off';
+document.getElementById('vBtn').textContent='🎙️ 音声入力 開始';
+log('停止');
 }
-if(listening){setTimeout(function(){if(listening)doStart();},500);}
-};
-rec.onend=function(){
-log('認識終了');
-if(listening){setTimeout(function(){if(listening)doStart();},300);}
-};
-rec.start();
-log('start()実行');
-showSt('🎤 音声認識開始');
-}catch(ex){
-log('例外: '+ex.message);
-alert('音声認識開始失敗: '+ex.message);
-listening=false;
-this.className='vbtn off';
-this.textContent='🎤 音声入力開始';
 }
-},false);
 
 function doStart(){
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR||!listening)return;
+// TTSが喋っている間は認識を待機
+if(isSpeaking){
+setTimeout(function(){if(listening)doStart();},500);
+return;
+}
 try{
 rec=new SR();
 rec.lang='ja-JP';
 rec.continuous=false;
 rec.interimResults=false;
 rec.maxAlternatives=1;
-rec.onstart=function(){log('再開OK');};
+rec.onstart=function(){log('認識開始');};
 rec.onresult=function(e){
 if(e.results.length>0&&e.results[0].isFinal){
 var t=e.results[0][0].transcript.trim();
@@ -516,16 +310,19 @@ procVoice(t);
 }
 };
 rec.onerror=function(e){
-log('再開エラー: '+e.error);
-if(e.error==='not-allowed'){listening=false;return;}
-if(listening){setTimeout(function(){if(listening)doStart();},500);}
+log('エラー: '+e.error);
+if(e.error==='not-allowed'){listening=false;
+document.getElementById('vBtn').className='vbtn off';
+document.getElementById('vBtn').textContent='🎙️ 音声入力 開始';
+return;}
+if(listening&&!isSpeaking){setTimeout(function(){if(listening)doStart();},500);}
 };
 rec.onend=function(){
-if(listening){setTimeout(function(){if(listening)doStart();},300);}
+if(listening&&!isSpeaking){setTimeout(function(){if(listening)doStart();},300);}
 };
 rec.start();
 }catch(ex){
-log('再開例外: '+ex.message);
+log('例外: '+ex.message);
 if(listening){setTimeout(function(){if(listening)doStart();},1000);}
 }
 }
@@ -574,7 +371,9 @@ function recVal(slot,val,corr){
 D[cp][slot]=val;
 var act=corr?'訂正':'記録';
 setResult('No.'+slot+' → '+val,'ok');
-spk('ナンバー'+slot+' '+val+'を'+act+'しました');
+// 音声認識を一旦停止してからTTSを再生
+if(rec){try{rec.stop();}catch(x){}}
+spk('ナンバー '+slot+' '+val+' を'+act+'しました');
 svData();updAll();
 if(cntF()>=C.ts){
 if(cp<C.np-1){
@@ -592,16 +391,6 @@ var el=document.getElementById('lrVal');
 el.textContent=txt;
 el.className='v'+(cls?' '+cls:'');
 if(cls)setTimeout(function(){el.className='v';},3000);
-}
-
-function spk(t){
-if(!window.speechSynthesis)return;
-try{
-window.speechSynthesis.cancel();
-var u=new SpeechSynthesisUtterance(t);
-u.lang='ja-JP';u.rate=1.1;u.volume=1;
-window.speechSynthesis.speak(u);
-}catch(x){log('spk err:'+x.message);}
 }
 
 function nextPt(){
@@ -688,6 +477,64 @@ openMd(parseInt(this.getAttribute('data-s')),parseInt(this.getAttribute('data-p'
 }
 }
 
+function renderSlots(){
+var h='';
+for(var i=1;i<=5;i++){
+var key='wslot'+i;
+var sd=localStorage.getItem(key);
+if(sd){
+try{
+var obj=JSON.parse(sd);
+var prog=0,total=0;
+for(var p=0;p<obj.C.np;p++){for(var k in obj.D[p])prog++; total+=obj.C.ts;}
+h+='<div class="slot-card used">';
+h+='<div class="slot-title">スロット '+i+'</div>';
+h+='<div class="slot-info"><span class="mc">'+obj.C.mc+'</span><br>';
+h+='<span class="prog">'+prog+' / '+total+' 完了</span><br>';
+h+='<span class="dt2">'+obj.saved+'</span></div>';
+h+='<div class="slot-btns">';
+h+='<button class="bt load" onclick="ldSlot('+i+')">📂 ロード</button>';
+h+='<button class="bt save2" onclick="svSlot('+i+')">💾 上書</button>';
+h+='<button class="bt del2" onclick="delSlot('+i+')">🗑</button>';
+h+='</div></div>';
+}catch(x){h+=emptySlot(i);}
+}else{h+=emptySlot(i);}
+}
+document.getElementById('slotList').innerHTML=h;
+}
+
+function emptySlot(i){
+return '<div class="slot-card empty"><div class="slot-title">スロット '+i+'</div><div class="slot-info" style="color:#555;">空のスロット</div><div class="slot-btns"><button class="bt save2" onclick="svSlot('+i+')">💾 保存</button></div></div>';
+}
+
+function svSlot(i){
+var obj={C:JSON.parse(JSON.stringify(C)),D:JSON.parse(JSON.stringify(D)),cp:cp,saved:new Date().toLocaleString('ja-JP')};
+localStorage.setItem('wslot'+i,JSON.stringify(obj));
+renderSlots();showSt('💾 スロット'+i+'に保存');
+}
+
+function ldSlot(i){
+if(!confirm('スロット'+i+'をロードしますか？'))return;
+var sd=localStorage.getItem('wslot'+i);
+if(!sd)return;
+try{
+var obj=JSON.parse(sd);
+C=obj.C;D=obj.D;cp=obj.cp||0;
+document.getElementById('inMc').value=C.mc;
+document.getElementById('inSl').value=C.ts;
+document.getElementById('inPt').value=C.np;
+buildPtUI();updAll();svData();renderSlots();
+showSt('📂 スロット'+i+'をロード');
+switchTab(0);
+}catch(x){showSt('❌ ロード失敗');}
+}
+
+function delSlot(i){
+if(!confirm('スロット'+i+'を削除？'))return;
+localStorage.removeItem('wslot'+i);
+renderSlots();showSt('🗑 スロット'+i+'削除');
+}
+
 function buildPtUI(){
 var c=document.getElementById('ptSet'),np=parseInt(document.getElementById('inPt').value)||3,h='';
 for(var i=0;i<np;i++){
@@ -741,6 +588,25 @@ h+='<button class="bt bd" onclick="delPr(\''+n.replace(/'/g,"\\'")+'\')">🗑</b
 c.innerHTML=h;
 }
 
+function doCSV(){
+var h='No.';
+for(var p=0;p<C.np;p++)h+=','+C.pp[p]+'枚目';
+var rows=[h];
+for(var i=1;i<=C.ts;i++){
+var r=String(i);
+for(var p2=0;p2<C.np;p2++)r+=','+(D[p2][i]!==undefined&&D[p2][i]!==null?D[p2][i]:'');
+rows.push(r);
+}
+var csv=rows.join('\n');
+var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+var url=URL.createObjectURL(blob);
+var a=document.createElement('a');
+a.href=url;a.download=C.mc+'_点検記録.csv';
+document.body.appendChild(a);a.click();
+document.body.removeChild(a);URL.revokeObjectURL(url);
+showSt('📥 CSV出力完了');
+}
+
 function svData(){try{localStorage.setItem('wd',JSON.stringify(D));localStorage.setItem('wcp',String(cp));localStorage.setItem('wc',JSON.stringify(C));}catch(x){}}
 function svCfg(){try{localStorage.setItem('wc',JSON.stringify(C));}catch(x){}}
 function ldSaved(){
@@ -761,8 +627,7 @@ var el=document.getElementById('stMsg');el.textContent=m;el.classList.add('sh');
 if(stT)clearTimeout(stT);stT=setTimeout(function(){el.classList.remove('sh');},3000);
 }
 
-ldSaved();updAll();buildPtUI();renderPr();
-log('アプリ起動完了');
+window.onload=function(){ldSaved();updAll();buildPtUI();renderPr();};
 </script>
 </body>
 </html>
