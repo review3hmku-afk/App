@@ -282,6 +282,11 @@ setResult('❌ 認識できません','ng');
 spk('認識できませんでした');
 }
 function recVal(slot,val,corr){
+if(!corr && D[cp][slot]!==undefined && D[cp][slot]!==null){
+setResult('⚠️ No.'+slot+' 記録済み','ng');
+spk('No.'+slot+'はすでに記録されています。訂正コマンドを使ってください');
+return;
+}
 D[cp][slot]=val;
 var act=corr?'訂正':'記録';
 setResult('No.'+slot+' → '+val,'ok');
