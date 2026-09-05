@@ -98,120 +98,103 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 </head>
 <body>
 <div class="hd">
-  <h1>📋 点検記録</h1>
-  <div class="pi" id="hdPi">-</div>
-  <div class="mi" id="hdMi">設定タブで機種名を入力してください</div>
+<h1>📋 点検記録</h1>
+<div class="pi" id="ptInfo">1点目（5枚目）</div>
+<div class="mi" id="mcInfo">デフォルト</div>
 </div>
 <div class="tabs">
-  <div class="tb on" id="tab0" onclick="switchTab(0)">🎙️ 入力</div>
-  <div class="tb" id="tab1" onclick="switchTab(1)">📊 一覧</div>
-  <div class="tb" id="tab2" onclick="switchTab(2)">💾 保存</div>
-  <div class="tb" id="tab3" onclick="switchTab(3)">⚙️ 設定</div>
+<div class="tb on" onclick="switchTab(0)">🎙 入力</div>
+<div class="tb" onclick="switchTab(1)">🇮🇹 一覧</div>
+<div class="tb" onclick="switchTab(2)">🗂 休存</div>
+<div class="tb" onclick="switchTab(3)">⚙️ 設定</div>
 </div>
 <div class="sc on" id="sc0">
-  <button class="vbtn off" id="vBtn" onclick="togV()">🎙️ 音声入力 開始</button>
-  <div class="csb">
-    <div class="n" id="curPt">-</div>
-    <div class="s" id="curPtS">測定点</div>
-  </div>
-  <div class="lr">
-    <div class="l">認識結果</div>
-    <div class="v" id="lrVal">待機中...</div>
-    <div class="r" id="lrRaw"></div>
-  </div>
-  <div class="pb">
-    <span id="pbTxt">0 / 0</span>
-    <div class="pbr"><div class="pbf" id="pbF" style="width:0%"></div></div>
-  </div>
-  <div class="gr" id="grid"></div>
-  <div class="nb">
-    <button class="bt s" onclick="prevPt()">⬅️ 前の点</button>
-    <button class="bt n" onclick="nextPt()">次の点 ➡️</button>
-  </div>
-  <button class="bt x" onclick="doCSV()">📥 CSV出力</button>
-  <div class="dbg" id="dbgLog">デバッグログ</div>
+<button class="vbtn off" id="vBtn" onclick="togV()">🎙 音声入力 開始</button>
+<div class="csb"><div class="n" id="ptLbl">1点目</div><div class="s" id="ptSub">5枚目</div></div>
+<div class="lr"><div class="l">認識結果</div><div class="v" id="lrVal">待機中...</div><div class="r" id="lrRaw"></div></div>
+<div class="pb"><span id="pbTxt">0 / 72</span><div class="pbr"><div class="pbf" id="pbBar" style="width:0%"></div></div></div>
+<div class="gr" id="grid"></div>
+<div class="nb">
+<button class="bt s" onclick="prevPt()">⬅ 前の点</button>
+<button class="bt n" onclick="nextPt()">次の点 ➡</button>
+</div>
+<button class="bt x" onclick="doCSV()">📨 CSV出力</button>
+<div class="dbg" id="dbg"></div>
 </div>
 <div class="sc" id="sc1">
-  <div class="dtw"><table class="dt" id="dtbl"></table></div>
-  <button class="bt p" onclick="if(confirm('このデータを全削除？')){initD();svData();updAll();renderTbl();showSt('🗑 全データ削除');}">🗑️ データ全削除</button>
+<div class="vh">💡 <b>タップ</b>で手動入力・修正できます</div>
+<div class="dtw"><table class="dt" id="tbl"></table></div>
 </div>
 <div class="sc" id="sc2">
-  <div id="slotList"></div>
+<div class="sg"><h3>💾 セーブ・ロード</h3><div id="slotList"></div></div>
+<hr class="divider">
+<button class="bt r" onclick="doReset()">🗑 データリセット</button>
 </div>
 <div class="sc" id="sc3">
-  <div class="sg">
-    <h3>⚙️ 基本設定</h3>
-    <div class="sr"><label>機種名</label><input type="text" id="inMc" class="w" value="デフォルト"></div>
-    <div class="sr"><label>No.総数</label><input type="number" id="inSl" value="72" min="1" max="200"></div>
-    <div class="sr"><label>測定点数</label><input type="number" id="inPt" value="3" min="1" max="10" onchange="buildPtUI()"></div>
-    <div id="ptSet"></div>
-    <button class="bt p" onclick="doApply()">✅ 適用（データ初期化）</button>
-  </div>
-  <div class="sg">
-    <h3>💾 プリセット</h3>
-    <button class="bt g" onclick="doSavePreset()">💾 現在の設定を保存</button>
-    <div id="prList" style="margin-top:10px;"></div>
-  </div>
-  <div class="sg">
-    <h3>🗑️ リセット</h3>
-    <button class="bt r" onclick="if(confirm('測定データを全削除？')){initD();svData();updAll();showSt('🗑 データ削除');}">測定データ削除</button>
-    <button class="bt r" onclick="if(confirm('全データ初期化？')){localStorage.clear();location.reload();}">全データ初期化</button>
-  </div>
+<div class="sg">
+<h3>⚙️ 基本設定</h3>
+<div class="sr"><label>機種名</label><input type="text" id="inMc" class="w" value="デフォルト"></div>
+<div class="sr"><label>No.総数</label><input type="number" id="inSl" value="72" min="1"></div>
+<div class="sr"><label>測定点数</label><input type="number" id="inPt" value="3" min="1" max="10" onchange="buildPtUI()"></div>
 </div>
-<div class="mo" id="modal" onclick="modalOutside(event)">
-  <div class="md">
-    <h3 id="mdTitle">手動入力</h3>
-    <input type="number" id="mdIn" placeholder="値を入力">
-    <div class="mb">
-      <button class="bt ca" onclick="mdClose()">キャンセル</button>
-      <button class="bt sv" onclick="mdSave()">保存</button>
-    </div>
-    <button class="bt dl" onclick="mdDel()">🗑️ この値を削除</button>
-  </div>
+<div class="sg"><h3>📍 測定点位置</h3><div id="ptSet"></div></div>
+<button class="bt p" onclick="doApply()">✅ 設定適用</button>
+<hr class="divider">
+<div class="sg"><h3>📂 プリセット</h3><div id="prList"></div></div>
+<button class="bt g" onclick="doSavePreset()">💾 現在の設定をプリセット保存</button>
+</div>
+<div class="mo" id="modal">
+<div class="md">
+<h3>手動入力 <span id="mNo"></span></h3>
+<input type="number" id="mVal" placeholder="数値を入力">
+<div class="mb">
+<button class="bt ca" onclick="closeMo()">キャンセル</button>
+<button class="bt sv" onclick="saveMo()">保存</button>
+</div>
+<button class="bt dl" onclick="delMo()">🗑 この数値を削除</button>
+</div>
 </div>
 <div class="sm" id="stMsg"></div>
 <script>
 var C={mc:'デフォルト',ts:72,np:3,pp:[5,13,19]};
-var D=[],cp=0,listening=false,rec=null,es=1,stT=null,mSlot=null,mPt=null;
-function log(m){var el=document.getElementById('dbgLog');el.textContent=m+'\n'+el.textContent;if(el.textContent.length>500)el.textContent=el.textContent.slice(0,500);}
+var D=[],cp=0,listening=false,rec=null,stT=null,mSlot=null,errCount=0;
 function initD(){D=[];for(var i=0;i<C.np;i++)D.push({});}
+function switchTab(i){
+var ss=document.querySelectorAll('.sc'),ts=document.querySelectorAll('.tb');
+for(var j=0;j<ss.length;j++){ss[j].classList.remove('on');ts[j].classList.remove('on');}
+ss[i].classList.add('on');ts[i].classList.add('on');
+if(i===1)renderTbl();if(i===2)renderSlots();
+}
 function updAll(){
-var pp=C.pp[cp]||'-';
-document.getElementById('hdPi').textContent=(cp+1)+'点目（'+pp+'枚目）';
-document.getElementById('hdMi').textContent=C.mc;
-document.getElementById('curPt').textContent=(cp+1)+'点目';
-document.getElementById('curPtS').textContent=pp+'枚目';
+var pt=C.pp[cp]||'-';
+document.getElementById('ptInfo').textContent=(cp+1)+'点目（'+pt+'枚目）';
+document.getElementById('mcInfo').textContent=C.mc;
+document.getElementById('ptLbl').textContent=(cp+1)+'点目';
+document.getElementById('ptSub').textContent=pt+'枚目';
 var f=cntF(),t=C.ts;
 document.getElementById('pbTxt').textContent=f+' / '+t;
-document.getElementById('pbF').style.width=(t>0?Math.round(f/t*100):0)+'%';
+document.getElementById('pbBar').style.width=(t>0?Math.round(f/t*100):0)+'%';
 renderGrid();
 }
-function cntF(){var c=0;for(var k in D[cp])if(D[cp][k]!==undefined&&D[cp][k]!==null)c++;return c;}
+function cntF(){var c=0;for(var k in D[cp])if(D[cp][k]!==null&&D[cp][k]!==undefined)c++;return c;}
 function renderGrid(){
 var g=document.getElementById('grid'),h='';
 for(var i=1;i<=C.ts;i++){
-var v=D[cp][i],hv=v!==undefined&&v!==null;
-var cls=hv?'gc f':'gc e';
-if(i===es)cls='gc c';
-h+='<div class="'+cls+'" onclick="openMd('+i+','+cp+');es='+i+';renderGrid();">'+i+(hv?'<div class="cv">'+v+'</div>':'')+'</div>';
+var v=D[cp][i];
+var cls=v!==undefined&&v!==null?'gc f':'gc e';
+if(i===(cp===0?1:1)){}
+h+='<div class="'+cls+'" onclick="openMo('+i+')">';
+h+=i;
+if(v!==undefined&&v!==null)h+='<div class="cv">'+v+'</div>';
+h+='</div>';
 }
 g.innerHTML=h;
 }
 function togV(){
-if(!listening){
-listening=true;
-document.getElementById('vBtn').className='vbtn rec';
-document.getElementById('vBtn').textContent='🔴 録音中... タップで停止';
-doStart();
-log('開始');
-}else{
-listening=false;
-if(rec){try{rec.stop();}catch(x){}}
-rec=null;
-document.getElementById('vBtn').className='vbtn off';
-document.getElementById('vBtn').textContent='🎙️ 音声入力 開始';
-log('停止');
-}
+listening=!listening;
+var b=document.getElementById('vBtn');
+if(listening){b.className='vbtn rec';b.textContent='🔴 録音中... タップで停止';errCount=0;doStart();}
+else{b.className='vbtn off';b.textContent='🎙 音声入力 開始';if(rec){try{rec.stop();}catch(x){}rec=null;}}
 }
 function doStart(){
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -222,7 +205,7 @@ rec.lang='ja-JP';
 rec.continuous=false;
 rec.interimResults=false;
 rec.maxAlternatives=1;
-rec.onstart=function(){log('再開OK');};
+rec.onstart=function(){errCount=0;log('再開OK');};
 rec.onresult=function(e){
 if(e.results.length>0&&e.results[0].isFinal){
 var t=e.results[0][0].transcript.trim();
@@ -231,8 +214,18 @@ procVoice(t);
 }
 };
 rec.onerror=function(e){
-log('再開エラー: '+e.error);
-if(e.error==='not-allowed'){listening=false;return;}
+if(e.error==='not-allowed'){listening=false;
+var b=document.getElementById('vBtn');b.className='vbtn off';b.textContent='🎙 音声入力 開始';return;}
+if(e.error==='aborted'){
+errCount++;
+if(errCount>10){
+log('音声認識を一時停止します');
+setTimeout(function(){errCount=0;if(listening)doStart();},3000);
+return;
+}
+}else{
+log('エラー: '+e.error);
+}
 if(listening){setTimeout(function(){if(listening)doStart();},500);}
 };
 rec.onend=function(){
@@ -240,29 +233,23 @@ if(listening){setTimeout(function(){if(listening)doStart();},300);}
 };
 rec.start();
 }catch(ex){
-log('再開例外: '+ex.message);
+log('例外: '+ex.message);
 if(listening){setTimeout(function(){if(listening)doStart();},1000);}
 }
 }
-function k2n(s){
-var m={'零':0,'〇':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'１':'1','２':'2','３':'3','４':'4','５':'5','６':'6','７':'7','８':'8','９':'9','０':'0'};
-var r=s;for(var k in m)r=r.split(k).join(String(m[k]));return r;
+function log(m){
+var d=document.getElementById('dbg');
+if(!d)return;
+var lines=d.textContent.split('\n').filter(function(l){return l.length>0;});
+if(lines.length>30){lines=lines.slice(-20);}
+lines.push(m);
+d.textContent=lines.join('\n')+'\n';
+d.scrollTop=d.scrollHeight;
 }
-function procVoice(text){
-document.getElementById('lrRaw').textContent='認識:「'+text+'」';
-var n=k2n(text).replace(/[、。！？\s]+/g,' ').trim();
-log('処理: '+n);
-if(n.indexOf('訂正')>=0||n.indexOf('修正')>=0){
-var cm=n.match(/(\d+)\D+(\d+)/);
-if(cm){
-var sl=parseInt(cm[1]),vl=parseInt(cm[2]);
-if(sl>=1&&sl<=C.ts){recVal(sl,vl,true);return;}
-}
-setResult('❌ 訂正失敗','ng');
-spk('認識できませんでした');return;
-}
-if(n.indexOf('次')>=0||n.indexOf('つぎ')>=0){nextPt();return;}
-if(n.indexOf('前')>=0||n.indexOf('戻')>=0){prevPt();return;}
+function procVoice(n){
+var corr=false;
+if(n.indexOf('訂正')>=0||n.indexOf('修正')>=0||n.indexOf('戻')>=0){corr=true;}
+var es=cp+1;
 var pats=[
 /ナンバー\D*(\d+)\D+(\d+)/,
 /[Nn][Oo]\.?\s*(\d+)\D+(\d+)/,
@@ -273,16 +260,16 @@ for(var i=0;i<pats.length;i++){
 var m2=n.match(pats[i]);
 if(m2){
 var s2=parseInt(m2[1]),v2=parseInt(m2[2]);
-if(s2>=1&&s2<=C.ts){recVal(s2,v2,false);return;}
+if(s2>=1&&s2<=C.ts){recVal(s2,v2,corr);return;}
 }
 }
 var sn=n.match(/(\d+)/);
-if(sn){recVal(es,parseInt(sn[1]),false);return;}
+if(sn){recVal(es,parseInt(sn[1]),corr);return;}
 setResult('❌ 認識できません','ng');
 spk('認識できませんでした');
 }
 function recVal(slot,val,corr){
-if(!corr && D[cp][slot]!==undefined && D[cp][slot]!==null){
+if(!corr&&D[cp][slot]!==undefined&&D[cp][slot]!==null){
 setResult('⚠️ No.'+slot+' 記録済み','ng');
 spk('No.'+slot+'はすでに記録されています。訂正コマンドを使ってください');
 return;
@@ -313,94 +300,58 @@ if(!window.speechSynthesis)return;
 try{
 window.speechSynthesis.cancel();
 var u=new SpeechSynthesisUtterance(t);
-u.lang='ja-JP';u.rate=1.1;u.volume=1;
+u.lang='ja-JP';u.rate=1.1;
 window.speechSynthesis.speak(u);
-}catch(x){log('spk err:'+x.message);}
+}catch(x){}
 }
-function nextPt(){
-if(cp<C.np-1){
-cp++;updAll();svData();
-showSt('➡️ '+(cp+1)+'点目（'+C.pp[cp]+'枚目）');
-spk((cp+1)+'点目、'+C.pp[cp]+'枚目に移ります');
-}else{showSt('⚠️ 最後の測定点です');spk('最後の測定点です');}
-}
-function prevPt(){
-if(cp>0){
-cp--;updAll();svData();
-showSt('⬅️ '+(cp+1)+'点目（'+C.pp[cp]+'枚目）');
-spk((cp+1)+'点目に戻ります');
-}else{showSt('⚠️ 最初の測定点です');}
-}
-function openMd(slot,pt){
-mSlot=slot;mPt=pt;
-document.getElementById('mdTitle').textContent='No.'+slot+'（'+C.pp[pt]+'枚目）';
-var ev=D[pt][slot];
-document.getElementById('mdIn').value=(ev!==undefined&&ev!==null)?ev:'';
+function nextPt(){if(cp<C.np-1){cp++;svData();updAll();spk((cp+1)+'点目');}}
+function prevPt(){if(cp>0){cp--;svData();updAll();spk((cp+1)+'点目');}}
+function openMo(s){
+mSlot=s;
+document.getElementById('mNo').textContent='No.'+s;
+document.getElementById('mVal').value=D[cp][s]!==undefined&&D[cp][s]!==null?D[cp][s]:'';
 document.getElementById('modal').classList.add('sh');
-setTimeout(function(){document.getElementById('mdIn').focus();},100);
+setTimeout(function(){document.getElementById('mVal').focus();},100);
 }
-function mdClose(){document.getElementById('modal').classList.remove('sh');mSlot=null;mPt=null;}
-function modalOutside(e){if(e.target===document.getElementById('modal'))mdClose();}
-function mdSave(){
-var v=document.getElementById('mdIn').value.trim();
-if(v!==''){
-var num=parseInt(v);
-if(!isNaN(num)){
-D[mPt][mSlot]=num;
-svData();updAll();
-if(document.getElementById('sc1').classList.contains('on'))renderTbl();
-showSt('✅ No.'+mSlot+'を'+num+'に保存');
+function closeMo(){document.getElementById('modal').classList.remove('sh');mSlot=null;}
+function saveMo(){
+if(mSlot===null)return;
+var v=document.getElementById('mVal').value;
+if(v===''){delMo();return;}
+D[cp][mSlot]=parseInt(v);
+svData();updAll();closeMo();showSt('✅ No.'+mSlot+' 保存');
 }
+function delMo(){
+if(mSlot===null)return;
+if(!confirm('No.'+mSlot+'の数値を削除しますか？'))return;
+delete D[cp][mSlot];
+svData();updAll();closeMo();showSt('🗑 No.'+mSlot+' 削除');
 }
-mdClose();
-}
-function mdDel(){
-if(mSlot!==null&&mPt!==null){
-delete D[mPt][mSlot];
-svData();updAll();
-if(document.getElementById('sc1').classList.contains('on'))renderTbl();
-showSt('🗑 No.'+mSlot+'を削除');
-}
-mdClose();
-}
-function switchTab(n){
-for(var i=0;i<4;i++){
-document.getElementById('sc'+i).classList.remove('on');
-document.getElementById('tab'+i).classList.remove('on');
-}
-document.getElementById('sc'+n).classList.add('on');
-document.getElementById('tab'+n).classList.add('on');
-if(n===1)renderTbl();
-if(n===2)renderSlots();
+function doReset(){
+if(!confirm('全データをリセットしますか？'))return;
+initD();cp=0;svData();updAll();showSt('🗑 リセット完了');
 }
 function renderTbl(){
-var t=document.getElementById('dtbl');
-var h='<thead><tr><th>No.</th>';
+var h='<tr><th>No.</th>';
 for(var p=0;p<C.np;p++)h+='<th>'+C.pp[p]+'枚目</th>';
-h+='</tr></thead><tbody>';
+h+='</tr>';
 for(var i=1;i<=C.ts;i++){
-h+='<tr><td style="font-weight:bold;color:#e94560;">'+i+'</td>';
+h+='<tr>';
+h+='<td>'+i+'</td>';
 for(var p2=0;p2<C.np;p2++){
 var v=D[p2][i];
-var hv=v!==undefined&&v!==null;
-h+='<td class="'+(hv?'hv':'nv')+'" data-s="'+i+'" data-p="'+p2+'">'+(hv?v:'-')+'</td>';
+var cls=v!==undefined&&v!==null?'hv':'nv';
+h+='<td class="'+cls+'" onclick="switchTab(0);cp='+p2+';updAll();openMo('+i+')">';
+h+=(v!==undefined&&v!==null?v:'-')+'</td>';
 }
 h+='</tr>';
 }
-h+='</tbody>';
-t.innerHTML=h;
-var cells=t.querySelectorAll('td[data-s]');
-for(var c=0;c<cells.length;c++){
-cells[c].addEventListener('click',function(){
-openMd(parseInt(this.getAttribute('data-s')),parseInt(this.getAttribute('data-p')));
-});
-}
+document.getElementById('tbl').innerHTML=h;
 }
 function renderSlots(){
 var h='';
 for(var i=1;i<=5;i++){
-var key='wslot'+i;
-var sd=localStorage.getItem(key);
+var sd=localStorage.getItem('wslot'+i);
 if(sd){
 try{
 var obj=JSON.parse(sd);
