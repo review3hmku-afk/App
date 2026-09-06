@@ -162,6 +162,7 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 <script>
 var C={mc:'デフォルト',ts:72,np:3,pp:[5,13,19]};
 var D=[],cp=0,es=1,listening=false,rec=null,stT=null,mSlot=null,errCount=0;
+var autoRestartTimer=null;
 function initD(){D=[];for(var i=0;i<C.np;i++)D.push({});es=1;}
 function switchTab(i){
 var ss=document.querySelectorAll('.sc'),ts=document.querySelectorAll('.tb');
@@ -207,8 +208,30 @@ g.innerHTML=h;
 function togV(){
 listening=!listening;
 var b=document.getElementById('vBtn');
-if(listening){b.className='vbtn rec';b.textContent='🔴 録音中... タップで停止';errCount=0;doStart();}
-else{b.className='vbtn off';b.textContent='🎙 音声入力 開始';if(rec){try{rec.stop();}catch(x){}rec=null;}}
+if(listening){
+b.className='vbtn rec';
+b.textContent='🔴 録音中... タップで停止';
+errCount=0;
+doStart();
+startAutoRestart();
+}else{
+b.className='vbtn off';
+b.textContent='🎙 音声入力 開始';
+if(rec){try{rec.stop();}catch(x){}rec=null;}
+stopAutoRestart();
+}
+}
+function startAutoRestart(){
+stopAutoRestart();
+autoRestartTimer=setInterval(function(){
+if(!listening)return;
+log('定期リスタート');
+try{if(rec)rec.stop();}catch(x){}
+setTimeout(function(){if(listening)doStart();},500);
+},30000);
+}
+function stopAutoRestart(){
+if(autoRestartTimer){clearInterval(autoRestartTimer);autoRestartTimer=null;}
 }
 function doStart(){
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -229,7 +252,8 @@ procVoice(t);
 };
 rec.onerror=function(e){
 if(e.error==='not-allowed'){listening=false;
-var b=document.getElementById('vBtn');b.className='vbtn off';b.textContent='🎙 音声入力 開始';return;}
+var b=document.getElementById('vBtn');b.className='vbtn off';b.textContent='🎙 音声入力 開始';
+stopAutoRestart();return;}
 if(e.error==='aborted'){
 errCount++;
 if(errCount>10){
@@ -263,12 +287,9 @@ d.scrollTop=d.scrollHeight;
 function procVoice(n){
 var corr=false;
 if(n.indexOf('訂正')>=0||n.indexOf('修正')>=0||n.indexOf('戻')>=0){corr=true;}
-// 「次」コマンド：次のNoに進んで記録
 var nextCmd=n.indexOf('次')>=0;
-// 測定点移動
 if((n.indexOf('次の点')>=0||n.indexOf('次の測定')>=0)&&n.match(/\d/)==null){nextPt();return;}
 if(n.indexOf('前の点')>=0||n.indexOf('前の測定')>=0){prevPt();return;}
-// ナンバー指定パターン
 var pats=[
 /ナンバー\D*(\d+)\D+(\d+)/,
 /[Nn][Oo]\.?\s*(\d+)\D+(\d+)/,
@@ -281,22 +302,15 @@ var s2=parseInt(m2[1]),v2=parseInt(m2[2]);
 if(s2>=1&&s2<=C.ts){recVal(s2,v2,corr);return;}
 }
 }
-// 数字のみ or 「次、数値」パターン
 var sn=n.match(/(\d+)/);
 if(sn){
 var val=parseInt(sn[1]);
-if(nextCmd){
-// 「次」と言ったら次の未記録Noへ進んでから記録
-es++;
-nextEs();
-}
+if(nextCmd){es++;nextEs();}
 recVal(es,val,corr);
 return;
 }
-// 「次」だけ言った場合（数値なし）→ 次のNoに移動のみ
 if(nextCmd){
-es++;
-nextEs();
+es++;nextEs();
 setResult('No.'+es+' へ移動','ok');
 spk('ナンバー'+es);
 return;
@@ -314,7 +328,6 @@ D[cp][slot]=val;
 var act=corr?'訂正':'記録';
 setResult('No.'+slot+' → '+val,'ok');
 spk('ナンバー'+slot+'、'+val+'を'+act+'しました');
-// 記録後は次の未記録Noへ自動移動
 es=slot+1;
 nextEs();
 svData();updAll();
