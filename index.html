@@ -161,8 +161,8 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 <div class="sm" id="stMsg"></div>
 <script>
 var C={mc:'デフォルト',ts:72,np:3,pp:[5,13,19]};
-var D=[],cp=0,es=1,listening=false,rec=null,stT=null,mSlot=null,errCount=0;
-var autoRestartTimer=null;
+var D=[],cp=0,es=1,listening=false,rec=null,stT=null,mSlot=null;
+var recRunning=false,restartTimer=null;
 function initD(){D=[];for(var i=0;i<C.np;i++)D.push({});es=1;}
 function switchTab(i){
 var ss=document.querySelectorAll('.sc'),ts=document.querySelectorAll('.tb');
@@ -179,12 +179,9 @@ document.getElementById('ptSub').textContent=pt+'枚目';
 var f=cntF(),t=C.ts;
 document.getElementById('pbTxt').textContent=f+' / '+t;
 document.getElementById('pbBar').style.width=(t>0?Math.round(f/t*100):0)+'%';
-updCurNo();
-renderGrid();
+updCurNo();renderGrid();
 }
-function updCurNo(){
-document.getElementById('curNoLbl').textContent=es;
-}
+function updCurNo(){document.getElementById('curNoLbl').textContent=es;}
 function cntF(){var c=0;for(var k in D[cp])if(D[cp][k]!==null&&D[cp][k]!==undefined)c++;return c;}
 function nextEs(){
 while(es<=C.ts&&D[cp][es]!==undefined&&D[cp][es]!==null){es++;}
@@ -211,38 +208,39 @@ var b=document.getElementById('vBtn');
 if(listening){
 b.className='vbtn rec';
 b.textContent='🔴 録音中... タップで停止';
-errCount=0;
-doStart();
-startAutoRestart();
+scheduleStart(100);
 }else{
 b.className='vbtn off';
 b.textContent='🎙 音声入力 開始';
-if(rec){try{rec.stop();}catch(x){}rec=null;}
-stopAutoRestart();
+stopRec();
 }
 }
-function startAutoRestart(){
-stopAutoRestart();
-autoRestartTimer=setInterval(function(){
-if(!listening)return;
-log('定期リスタート');
-try{if(rec)rec.stop();}catch(x){}
-setTimeout(function(){if(listening)doStart();},500);
-},15000);
+function scheduleStart(delay){
+if(restartTimer)clearTimeout(restartTimer);
+restartTimer=setTimeout(function(){
+restartTimer=null;
+if(listening&&!recRunning)doStart();
+},delay||500);
 }
-function stopAutoRestart(){
-if(autoRestartTimer){clearInterval(autoRestartTimer);autoRestartTimer=null;}
+function stopRec(){
+if(restartTimer){clearTimeout(restartTimer);restartTimer=null;}
+recRunning=false;
+if(rec){
+rec.onstart=null;rec.onresult=null;rec.onerror=null;rec.onend=null;
+try{rec.stop();}catch(x){}
+rec=null;
+}
 }
 function doStart(){
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(!SR||!listening)return;
+if(!SR||!listening||recRunning)return;
 try{
 rec=new SR();
 rec.lang='ja-JP';
 rec.continuous=false;
 rec.interimResults=false;
 rec.maxAlternatives=1;
-rec.onstart=function(){errCount=0;log('再開OK');};
+rec.onstart=function(){recRunning=true;log('認識開始');};
 rec.onresult=function(e){
 if(e.results.length>0&&e.results[0].isFinal){
 var t=e.results[0][0].transcript.trim();
@@ -251,35 +249,31 @@ procVoice(t);
 }
 };
 rec.onerror=function(e){
-if(e.error==='not-allowed'){listening=false;
-var b=document.getElementById('vBtn');b.className='vbtn off';b.textContent='🎙 音声入力 開始';
-stopAutoRestart();return;}
-if(e.error==='aborted'){
-errCount++;
-if(errCount>10){
-log('音声認識を一時停止します');
-setTimeout(function(){errCount=0;if(listening)doStart();},3000);
+recRunning=false;
+if(e.error==='not-allowed'){
+listening=false;
+var b=document.getElementById('vBtn');
+b.className='vbtn off';b.textContent='🎙 音声入力 開始';
 return;
 }
-}else{
-log('エラー: '+e.error);
-}
-if(listening){setTimeout(function(){if(listening)doStart();},500);}
+if(listening)scheduleStart(1000);
 };
 rec.onend=function(){
-if(listening){setTimeout(function(){if(listening)doStart();},300);}
+recRunning=false;
+if(listening)scheduleStart(500);
 };
 rec.start();
 }catch(ex){
+recRunning=false;
 log('例外: '+ex.message);
-if(listening){setTimeout(function(){if(listening)doStart();},1000);}
+if(listening)scheduleStart(1000);
 }
 }
 function log(m){
 var d=document.getElementById('dbg');
 if(!d)return;
 var lines=d.textContent.split('\n').filter(function(l){return l.length>0;});
-if(lines.length>30){lines=lines.slice(-20);}
+if(lines.length>20){lines=lines.slice(-10);}
 lines.push(m);
 d.textContent=lines.join('\n')+'\n';
 d.scrollTop=d.scrollHeight;
@@ -328,8 +322,7 @@ D[cp][slot]=val;
 var act=corr?'訂正':'記録';
 setResult('No.'+slot+' → '+val,'ok');
 spk('ナンバー'+slot+'、'+val+'を'+act+'しました');
-es=slot+1;
-nextEs();
+es=slot+1;nextEs();
 svData();updAll();
 if(cntF()>=C.ts){
 if(cp<C.np-1){
@@ -388,8 +381,7 @@ var h='<tr><th>No.</th>';
 for(var p=0;p<C.np;p++)h+='<th>'+C.pp[p]+'枚目</th>';
 h+='</tr>';
 for(var i=1;i<=C.ts;i++){
-h+='<tr>';
-h+='<td>'+i+'</td>';
+h+='<tr>';h+='<td>'+i+'</td>';
 for(var p2=0;p2<C.np;p2++){
 var v=D[p2][i];
 var cls=v!==undefined&&v!==null?'hv':'nv';
@@ -443,8 +435,7 @@ document.getElementById('inMc').value=C.mc;
 document.getElementById('inSl').value=C.ts;
 document.getElementById('inPt').value=C.np;
 buildPtUI();updAll();svData();renderSlots();
-showSt('📂 スロット'+i+'をロード');
-switchTab(0);
+showSt('📂 スロット'+i+'をロード');switchTab(0);
 }catch(x){showSt('❌ ロード失敗');}
 }
 function delSlot(i){
@@ -468,8 +459,7 @@ C.np=parseInt(document.getElementById('inPt').value)||3;
 var ps=document.querySelectorAll('.ppi');
 C.pp=[];for(var i=0;i<ps.length;i++)C.pp.push(parseInt(ps[i].value)||(i*5+5));
 initD();cp=0;es=1;updAll();buildPtUI();svCfg();svData();
-switchTab(0);
-spk('設定を適用しました');showSt('✅ 設定適用');
+switchTab(0);spk('設定を適用しました');showSt('✅ 設定適用');
 }
 function doSavePreset(){
 var nm=C.mc;
