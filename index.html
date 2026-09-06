@@ -313,7 +313,7 @@ return;
 D[cp][slot]=val;
 var act=corr?'訂正':'記録';
 setResult('No.'+slot+' → '+val,'ok');
-spk('ナンバー'+slot+' '+val+'を'+act+'しました');
+spk('ナンバー'+slot+'、'+val+'を'+act+'しました');
 // 記録後は次の未記録Noへ自動移動
 es=slot+1;
 nextEs();
