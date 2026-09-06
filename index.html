@@ -228,7 +228,7 @@ if(!listening)return;
 log('定期リスタート');
 try{if(rec)rec.stop();}catch(x){}
 setTimeout(function(){if(listening)doStart();},500);
-},30000);
+},15000);
 }
 function stopAutoRestart(){
 if(autoRestartTimer){clearInterval(autoRestartTimer);autoRestartTimer=null;}
@@ -236,7 +236,6 @@ if(autoRestartTimer){clearInterval(autoRestartTimer);autoRestartTimer=null;}
 function doStart(){
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR||!listening)return;
-try{
 rec=new SR();
 rec.lang='ja-JP';
 rec.continuous=false;
