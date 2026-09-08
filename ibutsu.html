@@ -24,27 +24,34 @@ body{font-family:'Hiragino Sans','Yu Gothic',sans-serif;background:#f0f4f8;}
 .col-green{background:#f0fdf4;border-radius:10px;padding:14px;border-left:4px solid #22c55e;}
 .col-blue{background:#eff6ff;border-radius:10px;padding:14px;border-left:4px solid #3b82f6;}
 .col-yellow{background:#fefce8;border-radius:10px;padding:14px;border-left:4px solid #eab308;}
+.col-orange{background:#fff7ed;border-radius:10px;padding:14px;border-left:4px solid #f97316;}
 .col-title{font-size:13px;font-weight:bold;margin-bottom:8px;}
 .col-title.red{color:#ef4444;}
 .col-title.green{color:#22c55e;}
 .col-title.blue{color:#2563eb;}
 .col-title.yellow{color:#ca8a04;}
+.col-title.orange{color:#ea580c;}
 ul{padding-left:16px;}
 li{font-size:13px;margin-bottom:4px;line-height:1.6;}
 .illust{width:100%;border-radius:10px;margin:12px 0;object-fit:cover;}
 .note{background:#fef9c3;border-left:4px solid #eab308;border-radius:8px;padding:12px 14px;font-size:12px;color:#713f12;margin:12px 0;line-height:1.6;}
+.evidence-box{background:#f0fdf4;border:2px solid #22c55e;border-radius:12px;padding:16px;margin:12px 0;}
+.evidence-box h3{font-size:14px;color:#15803d;margin-bottom:10px;}
+.evidence-box p{font-size:13px;color:#166534;line-height:1.7;}
+.evidence-box .source{font-size:11px;color:#4ade80;margin-top:8px;}
 table{width:100%;border-collapse:collapse;font-size:13px;}
 th{background:#1e3a8a;color:white;padding:8px;text-align:left;}
 td{padding:8px;border-bottom:1px solid #e5e7eb;}
 tr:nth-child(even){background:#f8fafc;}
+.option-box{background:#eff6ff;border:2px solid #3b82f6;border-radius:12px;padding:16px;margin:12px 0;}
+.option-box h3{font-size:14px;color:#1d4ed8;margin-bottom:10px;}
+.option-item{background:white;border-radius:8px;padding:12px;margin-bottom:8px;border-left:4px solid #3b82f6;}
+.option-item .opt-title{font-size:13px;font-weight:bold;color:#1d4ed8;margin-bottom:4px;}
+.option-item p{font-size:12px;color:#374151;line-height:1.6;}
 .summary-box{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;border-radius:12px;padding:20px;margin-bottom:16px;text-align:center;}
 .summary-box h3{font-size:16px;margin-bottom:8px;}
 .summary-box p{font-size:13px;opacity:0.9;line-height:1.6;}
 .footer{text-align:right;font-size:10px;color:#9ca3af;padding:8px 0 24px;}
-.alarm-box{background:#f0fdf4;border:2px solid #22c55e;border-radius:12px;padding:16px;margin:12px 0;text-align:center;}
-.alarm-box .alarm-icon{font-size:36px;margin-bottom:8px;}
-.alarm-box h3{font-size:15px;color:#15803d;margin-bottom:6px;}
-.alarm-box p{font-size:13px;color:#166534;line-height:1.6;}
 @media print{.print-btn{display:none;}body{background:white;}.page{margin:0;}}
 </style>
 </head>
@@ -52,18 +59,20 @@ tr:nth-child(even){background:#f8fafc;}
 <button class="print-btn" onclick="window.print()">🖨️ 印刷する</button>
 <div class="page">
 
+<!-- タイトル -->
 <div class="title-slide">
 <div class="icon">🛡️</div>
 <h1>異物管理対策について</h1>
 <p>音声入力チェックシートアプリ 現場導入に向けた安全対策</p>
 <div class="title-tags">
 <span>🔒 異物管理</span>
-<span>📱 iPhone対応</span>
+<span>📱 iPhone強度</span>
 <span>🎧 ハンズフリー</span>
-<span>✅ 紛失対策</span>
+<span>✅ 柔軟な運用</span>
 </div>
 </div>
 
+<!-- SLIDE 1 懸念点 -->
 <div class="section-header">
 <div><span class="slide-num">SLIDE 1</span><h2>⚠️ 懸念点の整理</h2></div>
 </div>
@@ -81,49 +90,95 @@ tr:nth-child(even){background:#f8fafc;}
 <div class="col-green">
 <div class="col-title green">✅ 本資料の目的</div>
 <ul>
-<li>各懸念点への具体的な対策を提示</li>
-<li>既存の持ち込み品との比較</li>
+<li>iPhoneの強度に関するエビデンスを提示</li>
+<li>現場に合わせた柔軟な運用方法を提案</li>
 <li>安全に運用できる根拠を示す</li>
 </ul>
 </div>
 </div>
+<div class="col-blue">
+<div class="col-title blue">📋 前提として</div>
+<p style="font-size:13px;line-height:1.6;">現時点で明確な持ち込み禁止規定は確認されていません。また別部署ではすでにiPhoneを記録媒体として運用しており、海外のお客様も現場でスマホを使用されています。</p>
+</div>
 </div>
 <div class="footer">音声入力チェックシートアプリ 異物管理対策</div>
 
+<!-- SLIDE 2 iPhone強度エビデンス -->
 <div class="section-header">
-<div><span class="slide-num">SLIDE 2</span><h2>🔧 物理的な異物管理対策</h2></div>
+<div><span class="slide-num">SLIDE 2</span><h2>📊 iPhone落下強度エビデンス</h2></div>
 </div>
 <div class="card">
-<img src="https://review3hmku-afk.github.io/App/IMG_3561.png" class="illust" alt="作業員全身イラスト">
-<div class="note">※イラストはイメージです。実際の作業環境・服装とは異なります。詳細な作業内容は社外秘のためAIへの情報提供を制限しています。</div>
-<div class="two-col" style="margin-top:12px;">
+<div class="col-blue" style="margin-bottom:12px;">
+<div class="col-title blue">📱 iPhone本体の特徴</div>
+<ul>
+<li>Ceramic Shield採用（Appleが「iPhoneで最も強いガラス」と表現）</li>
+<li>IP68防水防塵規格取得</li>
+<li>完全密閉構造・内部ネジ類は外部から見えない設計</li>
+<li>内部部品は本体内に固定・収納</li>
+</ul>
+</div>
+
+<div class="evidence-box">
+<h3>📋 第三者機関による落下試験データ</h3>
+<p>
+<strong>iPhone 15 Pro Max（Consumer Reports試験）</strong><br>
+腰程度の高さを想定した繰り返し落下試験を100回実施。<br>
+目立った亀裂は確認されず、100回後も本体は良好に動作。<br><br>
+<strong>iPhone 17 Pro Max（第三者実機試験）</strong><br>
+約3.7m相当のコンクリートへの落下を含む試験で、<br>
+前後ガラスが重大な破損をせず本体が動作した実例あり。
+</p>
+<div class="source">出典：Consumer Reports / iTechGuides「First iPhone 17 Pro Max Drop Test」</div>
+</div>
+
 <div class="col-green">
-<div class="col-title green">✅ iPhone本体の対策</div>
-<ul>
-<li>頑丈なケースを装着</li>
-<li>完全密閉構造でバラけない</li>
-<li>ストラップで首から下げて固定</li>
-</ul>
+<div class="col-title green">✅ 異物管理の観点から</div>
+<p style="font-size:13px;line-height:1.7;">
+実際の作業において想定される落下高さは概ね腰〜胸程度（約1m前後）。<br>
+第三者試験では約3.7mのコンクリート落下でも本体動作を確認。<br>
+<strong>実作業環境より厳しい条件でも内部部品の飛散は確認されていない。</strong>
+</p>
 </div>
-<div class="col-blue">
-<div class="col-title blue">🔧 ストラップの対策</div>
-<ul>
-<li>金属接続部に熱収縮チューブを装着</li>
-<li>金属部分が露出しない状態に固定</li>
-<li>バラける部品をゼロに</li>
-</ul>
+
+<div class="col-yellow" style="margin-top:12px;">
+<div class="col-title yellow">⚠️ 注意点</div>
+<p style="font-size:13px;line-height:1.6;">外装ガラスは落下条件によって破損の可能性があります。内部部品より外装ガラスの管理を重点的に行う運用ルールで対応します。</p>
 </div>
 </div>
+<div class="footer">音声入力チェックシートアプリ 異物管理対策</div>
+
+<!-- SLIDE 3 運用対策 -->
+<div class="section-header">
+<div><span class="slide-num">SLIDE 3</span><h2>🔧 運用上の対策オプション</h2></div>
+</div>
+<div class="card">
+<img src="https://review3hmku-afk.github.io/App/IMG_3561.png" class="illust" alt="作業員イラスト">
+<div class="note">※イラストはイメージです。実際の作業環境・服装とは異なります。詳細な作業内容は社外秘のためAIへの情報提供を制限しています。</div>
+
+<div class="option-box">
+<h3>💡 現場環境に合わせて選べる対策オプション</h3>
+<div class="option-item">
+<div class="opt-title">オプションA：ケース＋ストラップで携帯</div>
+<p>頑丈なケースを装着し首掛けストラップで固定。ストラップの金属部分は熱収縮チューブで処理。両手が空いたままハンズフリーで使用可能。</p>
+</div>
+<div class="option-item">
+<div class="opt-title">オプションB：現場責任者と相談の上決定</div>
+<p>現場の状況・環境に合わせて最適な運用方法を現場責任者と協議して決定します。</p>
+</div>
+</div>
+
 <img src="https://review3hmku-afk.github.io/App/IMG_3562.png" class="illust" alt="ストラップ対策イラスト">
 </div>
 <div class="footer">音声入力チェックシートアプリ 異物管理対策</div>
 
+<!-- SLIDE 4 ハンズフリー・比較 -->
 <div class="section-header">
-<div><span class="slide-num">SLIDE 3</span><h2>🎧 ハンズフリー運用</h2></div>
+<div><span class="slide-num">SLIDE 4</span><h2>🎧 ハンズフリー運用・既存品との比較</h2></div>
 </div>
 <div class="card">
 <img src="https://review3hmku-afk.github.io/App/IMG_3563.png" class="illust" alt="ハンズフリーイラスト">
 <div class="note">※イラストはイメージです。実際の作業環境・服装とは異なります。</div>
+
 <div class="two-col" style="margin-top:12px;">
 <div class="col-green">
 <div class="col-title green">✅ 首掛けイヤホンの特徴</div>
@@ -137,53 +192,47 @@ tr:nth-child(even){background:#f8fafc;}
 <div class="col-blue">
 <div class="col-title blue">📱 運用イメージ</div>
 <ul>
-<li>iPhoneを首から下げて使用</li>
 <li>音声で数値を入力</li>
 <li>復唱をイヤホンで確認</li>
 <li>両手が完全に空いた状態</li>
+<li>作業を中断せず記録可能</li>
 </ul>
 </div>
 </div>
-</div>
-<div class="footer">音声入力チェックシートアプリ 異物管理対策</div>
 
-<div class="section-header">
-<div><span class="slide-num">SLIDE 4</span><h2>📊 既存の持ち込み品との比較</h2></div>
-</div>
-<div class="card">
 <img src="https://review3hmku-afk.github.io/App/IMG_3564.png" class="illust" alt="メモ帳VSイラスト">
+
 <table style="margin-top:12px;">
 <tr><th>項目</th><th>メモ帳・ペン</th><th>iPhone</th></tr>
 <tr><td>バラける部品</td><td>ペンのキャップ等あり</td><td>✅ 完全密閉・なし</td></tr>
-<tr><td>紛失時の発見</td><td>❌ 探すしかない</td><td>✅ 音を鳴らして発見可能</td></tr>
-<tr><td>落下リスク</td><td>ストラップなし</td><td>✅ ストラップで固定</td></tr>
-<tr><td>サイズ</td><td>小さいものもある</td><td>✅ 同程度以上</td></tr>
+<tr><td>紛失時の発見</td><td>❌ 探すしかない</td><td>✅ アラーム等で発見可能</td></tr>
+<tr><td>落下リスク</td><td>ストラップなし</td><td>✅ 対策オプションあり</td></tr>
+<tr><td>内部部品飛散</td><td>インク等の可能性あり</td><td>✅ 密閉構造で低リスク</td></tr>
 </table>
-<div class="alarm-box" style="margin-top:16px;">
-<div class="alarm-icon">⏰</div>
-<h3>複数アラームによる紛失防止</h3>
-<p>作業開始・中断・終了時にアラームを設定しておくことで手元にあるかどうかを定期的に確認できます。アカウント設定不要・誰でも簡単に設定可能</p>
-</div>
 </div>
 <div class="footer">音声入力チェックシートアプリ 異物管理対策</div>
 
+<!-- SLIDE 5 まとめ -->
 <div class="section-header">
 <div><span class="slide-num">SLIDE 5</span><h2>✅ まとめ</h2></div>
 </div>
 <div class="summary-box">
-<h3>🛡️ 対策済みのため安全に運用できます</h3>
-<p>懸念点に対してすべて具体的な対策を用意しています</p>
+<h3>🛡️ エビデンスに基づき安全に運用できます</h3>
+<p>懸念点に対して根拠あるデータと柔軟な対策を用意しています</p>
 </div>
 <div class="card">
 <table>
-<tr><th>懸念点</th><th>対策</th><th>状態</th></tr>
-<tr><td>異物混入リスク</td><td>密閉ケース＋収縮チューブで金属固定</td><td>✅ 対策済み</td></tr>
-<tr><td>落下・破損</td><td>首掛けストラップで固定</td><td>✅ 対策済み</td></tr>
-<tr><td>紛失リスク</td><td>複数アラーム＋音で発見可能</td><td>✅ 対策済み</td></tr>
+<tr><th>懸念点</th><th>対応</th><th>状態</th></tr>
+<tr><td>内部部品の飛散</td><td>密閉構造・第三者試験で確認済み</td><td>✅ 低リスク</td></tr>
+<tr><td>外装ガラスの破損</td><td>運用ルールで管理</td><td>✅ 対策可能</td></tr>
+<tr><td>落下リスク</td><td>現場に合わせた対策オプションあり</td><td>✅ 対策可能</td></tr>
+<tr><td>紛失リスク</td><td>アラーム等で発見可能・メモ帳より管理しやすい</td><td>✅ 対策可能</td></tr>
+<tr><td>持ち込み規定</td><td>明確な禁止規定なし・他部署で運用実績あり</td><td>✅ 問題なし</td></tr>
 </table>
+
 <div class="col-green" style="margin-top:16px;">
 <div class="col-title green">🙏 お願い</div>
-<p style="font-size:13px;line-height:1.6;">上記対策をご確認いただき、現場での試験的使用についてご承認いただけますようお願い申し上げます。ご不明な点がございましたらお気軽にご相談ください。</p>
+<p style="font-size:13px;line-height:1.6;">上記エビデンスおよび対策をご確認いただき、現場での試験的使用についてご承認いただけますようお願い申し上げます。運用方法については現場責任者と協議の上、最適な方法を選択いたします。ご不明な点がございましたらお気軽にご相談ください。</p>
 </div>
 </div>
 <div class="footer">音声入力チェックシートアプリ 異物管理対策</div>
