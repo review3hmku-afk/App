@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>点検記録アプリ 使い方ガイド</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Hiragino Sans','Yu Gothic',sans-serif;background:#f0f4f8;}
+.print-btn{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#2563eb;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:15px;cursor:pointer;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+.page{max-width:800px;margin:60px auto 0;padding:16px;}
+.title-slide{background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 50%,#3b82f6 100%);border-radius:16px;padding:48px 24px;text-align:center;color:white;margin-bottom:24px;}
+.title-slide .icon{font-size:48px;margin-bottom:16px;}
+.title-slide h1{font-size:26px;font-weight:bold;margin-bottom:8px;}
+.title-slide p{font-size:13px;opacity:0.85;margin-bottom:20px;}
+.title-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+.title-tags span{border:1px solid rgba(255,255,255,0.5);border-radius:20px;padding:4px 12px;font-size:12px;}
+.section-header{background:linear-gradient(90deg,#1e3a8a,#2563eb);color:white;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.section-header .slide-num{font-size:10px;opacity:0.7;display:block;}
+.section-header h2{font-size:18px;font-weight:bold;}
+.card{background:white;border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.col-red{background:#fff5f5;border-radius:10px;padding:14px;border-left:4px solid #ef4444;}
+.col-green{background:#f0fdf4;border-radius:10px;padding:14px;border-left:4px solid #22c55e;}
+.col-blue{background:#eff6ff;border-radius:10px;padding:14px;border-left:4px solid #3b82f6;}
+.col-yellow{background:#fefce8;border-radius:10px;padding:14px;border-left:4px solid #eab308;}
+.col-gray{background:#f8fafc;border-radius:10px;padding:14px;border-left:4px solid #94a3b8;}
+.col-title{font-size:13px;font-weight:bold;margin-bottom:8px;}
+.col-title.red{color:#ef4444;}
+.col-title.green{color:#22c55e;}
+.col-title.blue{color:#2563eb;}
+.col-title.yellow{color:#ca8a04;}
+.col-title.gray{color:#475569;}
+ul{padding-left:16px;}
+li{font-size:13px;margin-bottom:6px;line-height:1.7;}
+.note{background:#fef9c3;border-left:4px solid #eab308;border-radius:8px;padding:12px 14px;font-size:12px;color:#713f12;margin:12px 0;line-height:1.6;}
+.step-box{background:#f8faff;border:2px dashed #3b82f6;border-radius:12px;padding:16px;margin:12px 0;}
+.step-box h3{font-size:14px;color:#1d4ed8;margin-bottom:12px;}
+.step-item{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
+.step-num{background:#2563eb;color:white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;flex-shrink:0;margin-top:1px;}
+.step-text{font-size:13px;line-height:1.7;color:#374151;}
+.step-text strong{color:#1d4ed8;}
+.voice-box{background:#f0fdf4;border:2px solid #22c55e;border-radius:12px;padding:16px;margin:12px 0;}
+.voice-box h3{font-size:14px;color:#15803d;margin-bottom:12px;}
+.voice-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.voice-input{background:#1e3a8a;color:white;border-radius:8px;padding:6px 14px;font-size:14px;font-weight:bold;}
+.voice-arrow{font-size:18px;color:#94a3b8;}
+.voice-result{background:#dcfce7;color:#166534;border-radius:8px;padding:6px 14px;font-size:14px;font-weight:bold;}
+.voice-note{font-size:12px;color:#4b5563;margin-top:2px;width:100%;padding-left:4px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:#1e3a8a;color:white;padding:8px;text-align:left;}
+td{padding:8px;border-bottom:1px solid #e5e7eb;line-height:1.6;}
+tr:nth-child(even){background:#f8fafc;}
+.summary-box{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:white;border-radius:12px;padding:20px;margin-bottom:16px;text-align:center;}
+.summary-box h3{font-size:16px;margin-bottom:8px;}
+.summary-box p{font-size:13px;opacity:0.9;line-height:1.6;}
+.url-box{background:#1e293b;color:#7dd3fc;border-radius:10px;padding:12px 16px;font-size:14px;font-family:monospace;text-align:center;margin:12px 0;word-break:break-all;}
+.footer{text-align:right;font-size:10px;color:#9ca3af;padding:8px 0 24px;}
+.badge{display:inline-block;background:#dbeafe;color:#1d4ed8;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:bold;margin-left:6px;}
+.badge.green{background:#dcfce7;color:#15803d;}
+.badge.red{background:#fee2e2;color:#b91c1c;}
+@media print{.print-btn{display:none;}body{background:white;}.page{margin:0;}}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">🖨️ 印刷する</button>
+<div class="page">
+
+<!-- タイトル -->
+<div class="title-slide">
+<div class="icon">📋</div>
+<h1>点検記録アプリ 使い方ガイド</h1>
+<p>音声入力チェックシートアプリ｜現場導入版</p>
+<div class="title-tags">
+<span>🎤 音声入力</span>
+<span>📱 スマホ対応</span>
+<span>🔊 自動復唱</span>
+<span>💾 データ保存</span>
+</div>
+</div>
+
+<!-- SLIDE 1 アプリ概要 -->
+<div class="section-header">
+<div><span class="slide-num">SECTION 1</span><h2>📱 このアプリでできること</h2></div>
+</div>
+<div class="card">
+<div class="summary-box">
+<h3>🎤 声で数値を入力するだけで記録が完成します</h3>
+<p>メモ帳とペンの代わりに、スマホに向かって数値を読み上げるだけ。<br>両手が空いた状態でハンズフリーで記録できます。</p>
+</div>
+<div class="two-col">
+<div class="col-green">
+<div class="col-title green">✅ できること</div>
+<ul>
+<li>音声で数値を入力</li>
+<li>入力値を自動で復唱確認</li>
+<li>測定済みNoをグリッドで色分け表示</li>
+<li>データの保存・読み込み</li>
+<li>CSV形式でデータ出力</li>
+<li>手動での入力・修正</li>
+</ul>
+</div>
+<div class="col-blue">
+<div class="col-title blue">📋 基本スペック</div>
+<ul>
+<li>No.総数：72（変更可能）</li>
+<li>測定点数：3点（変更可能）</li>
+<li>セーブスロット：5枠</li>
+<li>動作環境：iPhone・Android</li>
+<li>ネット接続：不要（オフライン動作）</li>
+<li>インストール：不要（ブラウザで動作）</li>
+</ul>
+</div>
+</div>
+<div class="url-box">
+🔗 https://review3hmku-afk.github.io/App/
+</div>
+</div>
+<div class="footer">点検記録アプリ 使い方ガイド</div>
+
+<!-- SLIDE 2 基本操作 -->
+<div class="section-header">
+<div><span class="slide-num">SECTION 2</span><h2>🚀 基本的な使い方</h2></div>
+</div>
+<div class="card">
+<div class="step-box">
+<h3>📌 測定から記録までの流れ</h3>
+<div class="step-item">
+<div class="step-num">1</div>
+<div class="step-text">URLをブラウザで開く<br><strong>https://review3hmku-afk.github.io/App/</strong></div>
+</div>
+<div class="step-item">
+<div class="step-num">2</div>
+<div class="step-text"><strong>「🎤 音声入力開始」</strong>ボタンをタップ<br>マイクの使用許可が求められたら「許可」をタップ</div>
+</div>
+<div class="step-item">
+<div class="step-num">3</div>
+<div class="step-text">測定値をスマホに向かって<strong>はっきり読み上げる</strong><br>例：「<strong>いちぜろご</strong>」→ 105 と入力される</div>
+</div>
+<div class="step-item">
+<div class="step-num">4</div>
+<div class="step-text">アプリが<strong>自動で復唱</strong>する（例：「No.1、105」）<br>聞き間違いがないか確認できる</div>
+</div>
+<div class="step-item">
+<div class="step-num">5</div>
+<div class="step-text">次のNoへ自動的に移動して入力待機状態になる<br>そのまま続けて読み上げるだけでOK</div>
+</div>
+<div class="step-item">
+<div class="step-num">6</div>
+<div class="step-text">全No.入力完了後、<strong>「💾 セーブ」</strong>または<strong>「📊 CSV出力」</strong>でデータを保存</div>
+</div>
+</div>
+<div class="note">💡 測定点が複数ある場合は、1つのNoに対して測定点の数だけ入力します。自動で次の測定点・次のNoへ移動します。</div>
+</div>
+<div class="footer">点検記録アプリ 使い方ガイド</div>
+
+<!-- SLIDE 3 音声入力のコツ -->
+<div class="section-header">
+<div><span class="slide-num">SECTION 3</span><h2>🎤 音声入力のコツ・読み方ガイド</h2></div>
+</div>
+<div class="card">
+<div class="col-yellow" style="margin-bottom:16px;">
+<div class="col-title yellow">⚠️ 音声入力を使う前に知っておきたいこと</div>
+<ul>
+<li>スマホのマイクに向かって<strong>はっきり・ゆっくり</strong>話す</li>
+<li>騒音が大きい環境では認識精度が下がる場合がある</li>
+<li><strong>100以上の数字は1桁ずつ読む</strong>のがコツ（下記参照）</li>
+<li>認識がうまくいかない場合は手動入力に切り替えられる</li>
+</ul>
+</div>
+
+<div class="voice-box">
+<h3>🔢 数字の読み方ガイド</h3>
+
+<div class="voice-row">
+<div class="voice-input">「ひゃくご」</div>
+<div class="voice-arrow">→</div>
+<div class="voice-result">❌ 認識しにくい</div>
+<div class="voice-note">3桁の数字は誤認識しやすい</div>
+</div>
+
+<div class="voice-row">
+<div class="voice-input">「いちぜろご」</div>
+<div class="voice-arrow">→</div>
+<div class="voice-result">✅ 105 と認識</div>
+<div class="voice-note">1桁ずつ読むと正確に認識される</div>
+</div>
+
+<div class="voice-row">
+<div class="voice-input">「いちいちぜろ」</div>
+<div class="voice-arrow">→</div>
+<div class="voice-result">✅ 110 と認識</div>
+<div class="voice-note"></div>
+</div>
+
+<div class="voice-row">
+<div class="voice-input">「いちにさん」</div>
+<div class="voice-arrow">→</div>
+<div class="voice-result">✅ 123 と認識</div>
+<div class="voice-note"></div>
+</div>
+</div>
+
+<table style="margin-top:8px;">
+<tr><th>読み上げる言葉</th><th>認識される数字</th><th>ポイント</th></tr>
+<tr><td>「ぜろ」または「れい」</td><td>0</td><td>どちらでもOK</td></tr>
+<tr><td>「いち」</td><td>1</td><td></td></tr>
+<tr><td>「に」</td><td>2</td><td></td></tr>
+<tr><td>「さん」</td><td>3</td><td></td></tr>
+<tr><td>「よん」または「し」</td><td>4</td><td>どちらでもOK</td></tr>
+<tr><td>「ご」</td><td>5</td><td></td></tr>
+<tr><td>「ろく」</td><td>6</td><td></td></tr>
+<tr><td>「なな」または「しち」</td><td>7</td><td>どちらでもOK</td></tr>
+<tr><td>「はち」</td><td>8</td><td></td></tr>
+<tr><td>「きゅう」または「く」</td><td>9</td><td>どちらでもOK</td></tr>
+<tr><td>「いちぜろご」</td><td>105</td><td>100以上は1桁ずつ！</td></tr>
+<tr><td>「いちいちぜろ」</td><td>110</td><td>100以上は1桁ずつ！</td></tr>
+</table>
+
+<div class="note">💡 <strong>100以上の数字は必ず1桁ずつ読んでください。</strong>「ひゃく〇〇」と読むより確実に認識されます。</div>
+</div>
+<div class="footer">点検記録アプリ 使い方ガイド</div>
+
+<!-- SLIDE 4 主な機能 -->
+<div class="section-header">
+<div><span class="slide-num">SECTION 4</span><h2>⚙️ 主な機能一覧</h2></div>
+</div>
+<div class="card">
+<table>
+<tr><th>機能</th><th>説明</th></tr>
+<tr><td>🎤 音声入力</td><td>声で数値を入力。マイクボタンをタップして話しかけるだけ</td></tr>
+<tr><td>🔊 自動復唱</td><td>入力された値をアプリが読み上げて確認できる</td></tr>
+<tr><td>📊 グリッド表示</td><td>測定済みのNoが色分けされ、未記録のNoが一目でわかる</td></tr>
+<tr><td>✏️ 手動入力・修正</td><td>Noをタップすると手動で数値の入力・修正ができる</td></tr>
+<tr><td>💾 セーブ・ロード</td><td>5枠のスロットにデータを保存・読み込みできる</td></tr>
+<tr><td>📊 CSV出力</td><td>記録データをCSV形式でダウンロードできる</td></tr>
+<tr><td>🔄 測定点切替</td><td>前の測定点・次の測定点へ切り替えられる</td></tr>
+<tr><td>⚙️ プリセット保存</td><td>No.総数・測定点数などの設定を保存できる</td></tr>
+<tr><td>🗑️ リセット</td><td>データを全消去してやり直せる</td></tr>
+</table>
+
+<div class="two-col" style="margin-top:16px;">
+<div class="col-green">
+<div class="col-title green">✅ こんな時は手動入力</div>
+<ul>
+<li>騒音で音声認識できない時</li>
+<li>入力ミスを修正したい時</li>
+<li>音声入力が難しい環境の時</li>
+</ul>
+</div>
+<div class="col-blue">
+<div class="col-title blue">💡 データ管理のポイント</div>
+<ul>
+<li>作業途中でもセーブできる</li>
+<li>続きから再開できる</li>
+<li>CSV出力で記録を残せる</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="footer">点検記録アプリ 使い方ガイド</div>
+
+<!-- SLIDE 5 困ったときは -->
+<div class="section-header">
+<div><span class="slide-num">SECTION 5</span><h2>🆘 困ったときは</h2></div>
+</div>
+<div class="card">
+<table>
+<tr><th>困りごと</th><th>対処法</th></tr>
+<tr><td>音声が認識されない</td><td>はっきり・ゆっくり話す。それでもダメなら手動入力に切り替える</td></tr>
+<tr><td>100以上の数字が正しく入らない</td><td>1桁ずつ読む（例：105→「いちぜろご」）</td></tr>
+<tr><td>復唱の声が出ない</td><td>スマホのマナーモードを解除する。音量を上げる</td></tr>
+<tr><td>間違えて入力してしまった</td><td>該当のNoをタップ→手動で修正できる</td></tr>
+<tr><td>画面が固まった</td><td>ブラウザを再読み込みする（セーブ済みデータは残る）</td></tr>
+<tr><td>データが消えた</td><td>セーブスロットから読み込む</td></tr>
+</table>
+
+<div class="col-gray" style="margin-top:16px;">
+<div class="col-title gray">📌 作業前に確認しておくこと</div>
+<ul>
+<li>スマホの音量を上げておく（復唱が聞こえるように）</li>
+<li>マナーモードをオフにしておく</li>
+<li>ブラウザのマイク使用を「許可」にしておく</li>
+<li>作業途中でこまめにセーブする</li>
+</ul>
+</div>
+</div>
+<div class="footer">点検記録アプリ 使い方ガイド</div>
+
+</div>
+</body>
+</html>
