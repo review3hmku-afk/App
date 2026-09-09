@@ -163,13 +163,16 @@ body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#fff;min-heig
 var C={mc:'デフォルト',ts:72,np:3,pp:[5,13,19]};
 var D=[],cp=0,es=1,listening=false,rec=null,stT=null,mSlot=null;
 var recRunning=false,restartTimer=null;
+
 function initD(){D=[];for(var i=0;i<C.np;i++)D.push({});es=1;}
+
 function switchTab(i){
 var ss=document.querySelectorAll('.sc'),ts=document.querySelectorAll('.tb');
 for(var j=0;j<ss.length;j++){ss[j].classList.remove('on');ts[j].classList.remove('on');}
 ss[i].classList.add('on');ts[i].classList.add('on');
 if(i===1)renderTbl();if(i===2)renderSlots();
 }
+
 function updAll(){
 var pt=C.pp[cp]||'-';
 document.getElementById('ptInfo').textContent=(cp+1)+'点目（'+pt+'枚目）';
@@ -181,13 +184,16 @@ document.getElementById('pbTxt').textContent=f+' / '+t;
 document.getElementById('pbBar').style.width=(t>0?Math.round(f/t*100):0)+'%';
 updCurNo();renderGrid();
 }
+
 function updCurNo(){document.getElementById('curNoLbl').textContent=es;}
 function cntF(){var c=0;for(var k in D[cp])if(D[cp][k]!==null&&D[cp][k]!==undefined)c++;return c;}
+
 function nextEs(){
 while(es<=C.ts&&D[cp][es]!==undefined&&D[cp][es]!==null){es++;}
 if(es>C.ts)es=C.ts;
 updCurNo();
 }
+
 function renderGrid(){
 var g=document.getElementById('grid'),h='';
 for(var i=1;i<=C.ts;i++){
@@ -202,6 +208,7 @@ h+='</div>';
 }
 g.innerHTML=h;
 }
+
 function togV(){
 listening=!listening;
 var b=document.getElementById('vBtn');
@@ -215,6 +222,7 @@ b.textContent='🎙 音声入力 開始';
 stopRec();
 }
 }
+
 function scheduleStart(delay){
 if(restartTimer)clearTimeout(restartTimer);
 restartTimer=setTimeout(function(){
@@ -222,6 +230,7 @@ restartTimer=null;
 if(listening&&!recRunning)doStart();
 },delay||500);
 }
+
 function stopRec(){
 if(restartTimer){clearTimeout(restartTimer);restartTimer=null;}
 recRunning=false;
@@ -231,6 +240,7 @@ try{rec.stop();}catch(x){}
 rec=null;
 }
 }
+
 function doStart(){
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR||!listening||recRunning)return;
@@ -269,6 +279,7 @@ log('例外: '+ex.message);
 if(listening)scheduleStart(1000);
 }
 }
+
 function log(m){
 var d=document.getElementById('dbg');
 if(!d)return;
@@ -278,44 +289,113 @@ lines.push(m);
 d.textContent=lines.join('\n')+'\n';
 d.scrollTop=d.scrollHeight;
 }
-function procVoice(n){
+
+// ========== 数字変換（漢数字・一桁読み対応）==========
+function convNum(s){
+var m={'零':0,'〇':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'百':100,'千':1000,'１':'1','２':'2','３':'3','４':'4','５':'5','６':'6','７':'7','８':'8','９':'9','０':'0'};
+var r=s;
+for(var k in m)r=r.split(k).join(String(m[k]));
+return r;
+}
+
+// 一桁ずつ読んだ数字を結合する
+// 例：「いち に ぜろ」→ 数字列「1 2 0」→ 120
+function joinDigits(s){
+// スペース区切りの1桁数字を結合
+var parts=s.split(/\s+/);
+var digits='';
+var allDigits=true;
+for(var i=0;i<parts.length;i++){
+if(/^\d$/.test(parts[i])){
+digits+=parts[i];
+}else{
+allDigits=false;
+break;
+}
+}
+if(allDigits&&digits.length>0)return parseInt(digits);
+return null;
+}
+
+// ========== 音声処理（100以上対応強化版）==========
+function procVoice(text){
+document.getElementById('lrRaw').textContent='認識:「'+text+'」';
+var n=convNum(text).trim();
+log('変換後: '+n);
+
 var corr=false;
 if(n.indexOf('訂正')>=0||n.indexOf('修正')>=0||n.indexOf('戻')>=0){corr=true;}
-var nextCmd=n.indexOf('次')>=0;
+
+// 次・前コマンド
 if((n.indexOf('次の点')>=0||n.indexOf('次の測定')>=0)&&n.match(/\d/)==null){nextPt();return;}
 if(n.indexOf('前の点')>=0||n.indexOf('前の測定')>=0){prevPt();return;}
-var pats=[
-/ナンバー\D*(\d+)\D+(\d+)/,
-/[Nn][Oo]\.?\s*(\d+)\D+(\d+)/,
-/(\d+)\s*番\D*(\d+)/,
-];
-for(var i=0;i<pats.length;i++){
-var m2=n.match(pats[i]);
-if(m2){
-var s2=parseInt(m2[1]),v2=parseInt(m2[2]);
-if(s2>=1&&s2<=C.ts){recVal(s2,v2,corr);return;}
+
+// 数字を全て抽出
+var nums=[];
+var tmp=n.replace(/(\d+)/g,function(m){nums.push(parseInt(m));return ' '+m+' ';});
+
+log('数字列: '+JSON.stringify(nums));
+
+// パターン1：ナンバー○○ ○○（訂正含む）
+var pat1=n.match(/(?:ナンバー|ナンバ|No\.?|番号)\D{0,5}?(\d+)\D+(\d+)/);
+if(pat1){
+var s1=parseInt(pat1[1]),v1=parseInt(pat1[2]);
+if(s1>=1&&s1<=C.ts){
+log('パターン1: No.'+s1+' val='+v1);
+recVal(s1,v1,corr);return;
 }
 }
-var sn=n.match(/(\d+)/);
-if(sn){
-var val=parseInt(sn[1]);
-if(nextCmd){es++;nextEs();}
-recVal(es,val,corr);
-return;
+
+// パターン2：数字が2つある場合（No. 値）
+if(nums.length>=2){
+var s2=nums[0],v2=nums[nums.length-1];
+// 訂正コマンドがある場合は最初の数字をNo.、最後を値として使う
+if(corr&&s2>=1&&s2<=C.ts){
+log('パターン2(訂正): No.'+s2+' val='+v2);
+recVal(s2,v2,corr);return;
 }
+// 通常記録：最初がNo.範囲内なら
+if(s2>=1&&s2<=C.ts&&nums.length===2){
+log('パターン2(通常): No.'+s2+' val='+v2);
+recVal(s2,v2,corr);return;
+}
+// 3つ以上の数字がある場合：最初をNo.、残りを結合して値に
+if(nums.length>=3&&s2>=1&&s2<=C.ts){
+// 残りの数字を結合
+var valStr='';
+for(var i=1;i<nums.length;i++)valStr+=String(nums[i]);
+var v3=parseInt(valStr);
+if(!isNaN(v3)){
+log('パターン2(結合): No.'+s2+' val='+v3);
+recVal(s2,v3,corr);return;
+}
+}
+}
+
+// パターン3：数字が1つだけの場合は現在のesに記録
+if(nums.length===1){
+var val=nums[0];
+log('パターン3(単体): No.'+es+' val='+val);
+recVal(es,val,corr);return;
+}
+
+// 次コマンド
+var nextCmd=n.indexOf('次')>=0;
 if(nextCmd){
 es++;nextEs();
 setResult('No.'+es+' へ移動','ok');
 spk('ナンバー'+es);
 return;
 }
+
 setResult('❌ 認識できません','ng');
 spk('認識できませんでした');
 }
+
 function recVal(slot,val,corr){
 if(!corr&&D[cp][slot]!==undefined&&D[cp][slot]!==null){
 setResult('⚠️ No.'+slot+' 記録済み','ng');
-spk('No.'+slot+'はすでに記録されています。訂正コマンドを使ってください');
+spk('ナンバー'+slot+'はすでに記録されています。訂正コマンドを使ってください');
 return;
 }
 D[cp][slot]=val;
@@ -334,12 +414,14 @@ showSt('🎉 全測定完了！');
 }
 }
 }
+
 function setResult(txt,cls){
 var el=document.getElementById('lrVal');
 el.textContent=txt;
 el.className='v'+(cls?' '+cls:'');
 if(cls)setTimeout(function(){el.className='v';},3000);
 }
+
 function spk(t){
 if(!window.speechSynthesis)return;
 try{
@@ -349,8 +431,10 @@ u.lang='ja-JP';u.rate=1.1;
 window.speechSynthesis.speak(u);
 }catch(x){}
 }
+
 function nextPt(){if(cp<C.np-1){cp++;es=1;nextEs();svData();updAll();spk((cp+1)+'点目');}}
 function prevPt(){if(cp>0){cp--;es=1;nextEs();svData();updAll();spk((cp+1)+'点目');}}
+
 function openMo(s){
 mSlot=s;
 document.getElementById('mNo').textContent='No.'+s;
@@ -376,6 +460,7 @@ function doReset(){
 if(!confirm('全データをリセットしますか？'))return;
 initD();cp=0;es=1;svData();updAll();showSt('🗑 リセット完了');
 }
+
 function renderTbl(){
 var h='<tr><th>No.</th>';
 for(var p=0;p<C.np;p++)h+='<th>'+C.pp[p]+'枚目</th>';
@@ -392,6 +477,7 @@ h+='</tr>';
 }
 document.getElementById('tbl').innerHTML=h;
 }
+
 function renderSlots(){
 var h='';
 for(var i=1;i<=5;i++){
@@ -416,14 +502,17 @@ h+='</div></div>';
 }
 document.getElementById('slotList').innerHTML=h;
 }
+
 function emptySlot(i){
 return '<div class="slot-card empty"><div class="slot-title">スロット '+i+'</div><div class="slot-info" style="color:#555;">空のスロット</div><div class="slot-btns"><button class="bt save2" onclick="svSlot('+i+')">💾 保存</button></div></div>';
 }
+
 function svSlot(i){
 var obj={C:JSON.parse(JSON.stringify(C)),D:JSON.parse(JSON.stringify(D)),cp:cp,es:es,saved:new Date().toLocaleString('ja-JP')};
 localStorage.setItem('wslot'+i,JSON.stringify(obj));
 renderSlots();showSt('💾 スロット'+i+'に保存');
 }
+
 function ldSlot(i){
 if(!confirm('スロット'+i+'をロードしますか？'))return;
 var sd=localStorage.getItem('wslot'+i);
@@ -438,11 +527,13 @@ buildPtUI();updAll();svData();renderSlots();
 showSt('📂 スロット'+i+'をロード');switchTab(0);
 }catch(x){showSt('❌ ロード失敗');}
 }
+
 function delSlot(i){
 if(!confirm('スロット'+i+'を削除？'))return;
 localStorage.removeItem('wslot'+i);
 renderSlots();showSt('🗑 スロット'+i+'削除');
 }
+
 function buildPtUI(){
 var c=document.getElementById('ptSet'),np=parseInt(document.getElementById('inPt').value)||3,h='';
 for(var i=0;i<np;i++){
@@ -451,6 +542,7 @@ h+='<div class="sr"><label>'+(i+1)+'点目</label><input type="number" class="pp
 }
 c.innerHTML=h;
 }
+
 function doApply(){
 if(!confirm('設定を適用してデータ初期化しますか？'))return;
 C.mc=document.getElementById('inMc').value||'デフォルト';
@@ -461,6 +553,7 @@ C.pp=[];for(var i=0;i<ps.length;i++)C.pp.push(parseInt(ps[i].value)||(i*5+5));
 initD();cp=0;es=1;updAll();buildPtUI();svCfg();svData();
 switchTab(0);spk('設定を適用しました');showSt('✅ 設定適用');
 }
+
 function doSavePreset(){
 var nm=C.mc;
 if(!nm||nm==='デフォルト'){nm=prompt('プリセット名',C.mc);if(!nm)return;}
@@ -468,6 +561,7 @@ var pr=JSON.parse(localStorage.getItem('wp')||'{}');
 pr[nm]={mc:nm,ts:C.ts,np:C.np,pp:C.pp.slice()};
 localStorage.setItem('wp',JSON.stringify(pr));renderPr();showSt('💾 保存: '+nm);
 }
+
 function loadPr(nm){
 var pr=JSON.parse(localStorage.getItem('wp')||'{}');
 if(!pr[nm])return;var p=pr[nm];
@@ -476,11 +570,13 @@ document.getElementById('inSl').value=p.ts;
 document.getElementById('inPt').value=p.np;
 C.pp=p.pp.slice();buildPtUI();showSt('📂 '+nm+'を読込');
 }
+
 function delPr(nm){
 if(!confirm(nm+'を削除？'))return;
 var pr=JSON.parse(localStorage.getItem('wp')||'{}');
 delete pr[nm];localStorage.setItem('wp',JSON.stringify(pr));renderPr();
 }
+
 function renderPr(){
 var pr=JSON.parse(localStorage.getItem('wp')||'{}'),c=document.getElementById('prList'),ks=Object.keys(pr);
 if(!ks.length){c.innerHTML='<p style="color:#666;font-size:11px;">プリセットなし</p>';return;}
@@ -492,6 +588,7 @@ h+='<button class="bt bd" onclick="delPr(\''+n.replace(/'/g,"\\'")+'\')">🗑</b
 }
 c.innerHTML=h;
 }
+
 function doCSV(){
 var h='No.';
 for(var p=0;p<C.np;p++)h+=','+C.pp[p]+'枚目';
@@ -510,8 +607,10 @@ document.body.appendChild(a);a.click();
 document.body.removeChild(a);URL.revokeObjectURL(url);
 showSt('📥 CSV出力完了');
 }
+
 function svData(){try{localStorage.setItem('wd',JSON.stringify(D));localStorage.setItem('wcp',String(cp));localStorage.setItem('wce',String(es));localStorage.setItem('wc',JSON.stringify(C));}catch(x){}}
 function svCfg(){try{localStorage.setItem('wc',JSON.stringify(C));}catch(x){}}
+
 function ldSaved(){
 try{
 var sc=localStorage.getItem('wc');
@@ -526,10 +625,12 @@ var se=localStorage.getItem('wce');
 if(se!==null){es=parseInt(se);}else{es=1;nextEs();}
 }catch(x){initD();}
 }
+
 function showSt(m){
 var el=document.getElementById('stMsg');el.textContent=m;el.classList.add('sh');
 if(stT)clearTimeout(stT);stT=setTimeout(function(){el.classList.remove('sh');},3000);
 }
+
 window.onload=function(){ldSaved();updAll();buildPtUI();renderPr();};
 </script>
 </body>
